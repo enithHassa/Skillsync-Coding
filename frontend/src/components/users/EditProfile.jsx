@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateUser, deleteUser } from '../../services/userService';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function EditProfile() {
   const navigate = useNavigate();
-  const localUser = JSON.parse(localStorage.getItem('user'));
-  const [form, setForm] = useState(localUser);
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  const [form, setForm] = useState(storedUser);
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -13,15 +15,27 @@ export default function EditProfile() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    const res = await updateUser(localUser.id, form);
-    localStorage.setItem('user', JSON.stringify(res.data));
-    navigate('/profile');
+    try {
+      const response = await updateUser(storedUser.id, form);
+      localStorage.setItem('user', JSON.stringify(response.data));
+      toast.success('Profile updated successfully!', {
+        onClose: () => navigate('/profile')
+      });
+    } catch (error) {
+      toast.error('Failed to update profile.');
+    }
   };
 
   const handleDelete = async () => {
-    await deleteUser(localUser.id);
-    localStorage.removeItem('user');
-    navigate('/login');
+    try {
+      await deleteUser(storedUser.id);
+      localStorage.removeItem('user');
+      toast.success('Account deleted successfully!', {
+        onClose: () => navigate('/')
+      });
+    } catch (error) {
+      toast.error('Failed to delete account.');
+    }
   };
 
   return (
