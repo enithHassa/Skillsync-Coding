@@ -6,10 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/skillsync/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -31,15 +32,23 @@ public class UserController {
         return ResponseEntity.ok("User added successfully");
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}")
     public ResponseEntity<String> updateUser(@PathVariable String id, @RequestBody User userDetails) {
         userService.updateUser(id, userDetails);
         return ResponseEntity.ok("Details updated");
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.ok("Profile deleted");
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<List<User>> testUsers() {
+        List<User> test = new ArrayList<>();
+        test.add(new User("1", "John", "Doe", 25, "Colombo", "0712345678", "john@example.com", "1234"));
+        return ResponseEntity.ok(test);
+    }
+
 }
