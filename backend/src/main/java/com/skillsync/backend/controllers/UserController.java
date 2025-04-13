@@ -5,11 +5,10 @@ import com.skillsync.backend.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/skillsync/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -31,15 +30,17 @@ public class UserController {
         return ResponseEntity.ok("User added successfully");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable String id, @RequestBody User userDetails) {
-        userService.updateUser(id, userDetails);
-        return ResponseEntity.ok("Details updated");
+    @PutMapping("update/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User userDetails) {
+        User updatedUser = userService.updateUser(id, userDetails);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
+
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.ok("Profile deleted");
     }
+
 }
