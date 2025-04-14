@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import Navbar from '../main-main/Navbar';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -24,6 +25,8 @@ export default function Profile() {
   }, []);
 
   return (
+    <>
+    <Navbar />
     <div className="flex justify-center mt-10">
       <div className="bg-white p-6 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4 text-center">Profile Details</h2>
@@ -46,5 +49,6 @@ export default function Profile() {
         </button>
       </div>
     </div>
+    </>
   );
 }

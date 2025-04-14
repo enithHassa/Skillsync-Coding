@@ -17,6 +17,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/update" element={<EditProfile />} />
         <Route path="/logout" element={<Logout />} />
+        
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} />
     </>
