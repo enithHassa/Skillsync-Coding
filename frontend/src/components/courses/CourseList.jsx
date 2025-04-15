@@ -23,9 +23,16 @@ const CourseList = () => {
   };
 
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:8080/skillsync/courses/delete/${id}`);
-    fetchCourses();
+    try {
+      console.log("Trying to delete course with ID:", id); // 👈 Log for debug
+      await axios.delete(`http://localhost:8080/skillsync/courses/delete/${id}`);
+      fetchCourses(); // Refresh the list
+    } catch (err) {
+      console.error("Delete failed:", err?.response?.data || err.message);
+      alert("Failed to delete the course. Check console for more info.");
+    }
   };
+  
 
   useEffect(() => {
     fetchCourses();

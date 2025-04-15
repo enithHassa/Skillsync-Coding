@@ -20,9 +20,17 @@ const CourseCard = ({ course, onEdit, onDelete }) => {
             <button onClick={() => onEdit(course)} className="text-yellow-500 hover:underline">
               ✏️ Edit
             </button>
-            <button onClick={() => onDelete(course._id)} className="text-red-500 hover:underline">
-              🗑️ Delete
-            </button>
+            
+            <button
+                onClick={() => {
+                  console.log("Deleting:", course._id); // 👈 Confirm ID is passed
+                  onDelete(course.id);
+                }}
+                className="text-red-500 hover:underline"
+              >
+                🗑️ Delete
+              </button>
+
           </div>
         </div>
       </div>
