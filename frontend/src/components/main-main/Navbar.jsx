@@ -52,7 +52,7 @@ export default function Navbar() {
             className="px-3 py-1 border border-black rounded-md w-60 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <div className="relative group flex items-center">
-            <button onClick={() => navigate('/skills')} className="hover:text-blue-600">
+            <button onClick={() => navigate('/s')} className="hover:text-blue-600">
               <Share2 className="w-6 h-6 text-black" />
             </button>
             <span className="absolute top-full mt-1 px-2 py-0.5 text-sm text-white bg-black rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">

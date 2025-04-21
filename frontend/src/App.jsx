@@ -7,12 +7,13 @@ import Profile from './components/users/Profile';
 import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
-
+import SkillsharePost from './components/users/skillpost/SkillsharePost';
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/s" element={<SkillsharePost />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/update" element={<EditProfile />} />
