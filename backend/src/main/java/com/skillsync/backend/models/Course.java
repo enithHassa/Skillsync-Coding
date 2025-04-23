@@ -15,6 +15,8 @@ public class Course {
     private String category;
     private boolean completed;
     private String userId;
+    private String imagePath;  // ✅ This will be the local path or URL
+
 
     // Default constructor
     public Course() {}
@@ -86,5 +88,13 @@ public class Course {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+    
 }
 

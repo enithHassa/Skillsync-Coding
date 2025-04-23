@@ -44,7 +44,8 @@ const CourseList = () => {
       <div className="grid gap-4">
         {courses.map((course) => (
           <CourseCard
-            key={course._id}
+          key={course.id} // instead of course._id
+          
             course={course}
             onEdit={setSelected}
             onDelete={handleDelete}
