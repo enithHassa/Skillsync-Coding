@@ -5,31 +5,51 @@ import {
   updateProgressUpdate,
   deleteProgressUpdate,
 } from '../api/progressUpdateApi';
-import ProgressUpdateForm from '../components/ProgressUpdateForm';
 import ProgressUpdateList from '../components/ProgressUpdateList';
-import Navbar from '../../main-main/Navbar';   //importing navbar
+import ProgressUpdateForm from '../components/ProgressUpdateForm';
+import Navbar from '../../main-main/Navbar';
+import { toast } from 'react-toastify';
 
 const ProgressPage = () => {
   const [updates, setUpdates] = useState([]);
-  const [editing, setEditing] = useState(null);
 
   const load = async () => {
-    setUpdates(await getProgressUpdates());
+    try {
+      const data = await getProgressUpdates();
+      setUpdates(data);
+    } catch {
+      toast.error("Failed to load updates ❌");
+    }
   };
 
-  const handleSubmit = async (data) => {
-    if (editing) {
-      await updateProgressUpdate(editing.id, data);
-    } else {
+  const handleCreate = async (data) => {
+    try {
       await createProgressUpdate(data);
+      toast.success("Post created 🎉");
+      load();
+    } catch {
+      toast.error("Failed to create post ❌");
     }
-    setEditing(null);
-    load();
   };
 
   const handleDelete = async (id) => {
-    await deleteProgressUpdate(id);
-    load();
+    try {
+      await deleteProgressUpdate(id);
+      toast.success("Post deleted 🗑️");
+      load();
+    } catch {
+      toast.error("Failed to delete ❌");
+    }
+  };
+
+  const handleUpdate = async (id, data) => {
+    try {
+      await updateProgressUpdate(id, data);
+      toast.success("Update saved ✅");
+      load();
+    } catch {
+      toast.error("Failed to update ❌");
+    }
   };
 
   useEffect(() => {
@@ -38,14 +58,18 @@ const ProgressPage = () => {
 
   return (
     <>
+      <Navbar />
+      <div className="max-w-2xl mx-auto mt-8 px-4">
+        {/* Creation Form */}
+        <ProgressUpdateForm onSubmit={handleCreate} />
 
-    <Navbar />
-    <div className="max-w-xl mx-auto mt-8">
-      <ProgressUpdateForm onSubmit={handleSubmit} initialData={editing} />
-      <div className="mt-6">
-        <ProgressUpdateList updates={updates} onDelete={handleDelete} onEdit={setEditing} />
+        {/* List of Updates */}
+        <ProgressUpdateList
+          updates={updates}
+          onDelete={handleDelete}
+          onUpdate={handleUpdate}
+        />
       </div>
-    </div>
     </>
   );
 };
