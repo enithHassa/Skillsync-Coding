@@ -1,17 +1,21 @@
 import { useState } from 'react';
-
+                                            //This is used to update progress creation form
 const ProgressUpdateForm = ({ onSubmit, initialData }) => {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [type, setType] = useState(initialData?.type || 'COMPLETED_TUTORIAL');
+  const [completedDate, setCompletedDate] = useState(initialData?.completedDate || '');
+  const [link, setLink] = useState(initialData?.link || '');
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ title, description, type, progressDate: new Date() });
+    onSubmit({ title, description, type, progressDate: new Date(),completedDate,link });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow">
+      <h1 className="text-3xl font-bold text-center mb-4">Progress Tracker</h1>
       <input
         className="w-full border p-2"
         placeholder="Title"
@@ -32,6 +36,22 @@ const ProgressUpdateForm = ({ onSubmit, initialData }) => {
         <option value="JOINED_CHALLENGE">Joined Challenge</option>
         <option value="ACHIEVED_GOAL">Achieved Goal</option>
       </select>
+
+      <input
+        className="w-full border p-2"
+        type="date"
+        value={completedDate}
+        onChange={(e) => setCompletedDate(e.target.value)}
+        placeholder="Completed Date"
+      />
+
+      <input
+        className="w-full border p-2"
+        type="url"
+        value={link}
+        onChange={(e) => setLink(e.target.value)}
+        placeholder="Course Link (optional)"
+      />
       <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
         {initialData ? 'Update' : 'Post'}
       </button>
