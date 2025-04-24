@@ -226,7 +226,7 @@ export default function SkillsharePost() {
 
         {/* Existing Posts */}
         <div>
-          <h2 className="text-2xl font-bold mb-4 text-center">Existing Posts</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center"> Posts</h2>
           {posts.length === 0 ? (
             <p className="text-center text-gray-500">No posts available.</p>
           ) : (
