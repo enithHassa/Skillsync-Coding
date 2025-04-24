@@ -8,6 +8,7 @@ import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
 import SkillsharePost from './components/skillpost/SkillsharePost';
+import CourseManager from './components/courses/CourseList';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/update" element={<EditProfile />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/courses" element={<CourseManager />} />
         
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} />
