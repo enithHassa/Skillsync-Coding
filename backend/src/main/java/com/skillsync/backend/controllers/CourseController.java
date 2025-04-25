@@ -17,16 +17,23 @@ public class CourseController {
     private final CourseRepository courseRepository;
 
     // Get all courses by user ID
-    @GetMapping
-    public ResponseEntity<List<Course>> getCoursesByUser(@RequestParam String userId) {
-        return ResponseEntity.ok(courseRepository.findByUserId(userId));
-    }
+    // @GetMapping
+    // public ResponseEntity<List<Course>> getCoursesByUser(@RequestParam String userId) {
+    //     return ResponseEntity.ok(courseRepository.findByUserId(userId));
+    // }
 
     // Get course by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable String id) {
-        return ResponseEntity.ok(courseRepository.findById(id).orElseThrow());
+    // @GetMapping("/{id}")
+    // public ResponseEntity<Course> getCourseById(@PathVariable String id) {
+    //     return ResponseEntity.ok(courseRepository.findById(id).orElseThrow());
+    // }
+
+    
+    @GetMapping
+    public ResponseEntity<List<Course>> getAllCourses() {
+        return ResponseEntity.ok(courseRepository.findAll());
     }
+
 
     // Create new course
     @PostMapping

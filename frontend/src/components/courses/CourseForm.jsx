@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const loggedInUser = JSON.parse(localStorage.getItem("user"));
+// const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
 const defaultForm = {
   title: "",
@@ -11,7 +11,7 @@ const defaultForm = {
   url: "",
   category: "",
   completed: false,
-  userId: loggedInUser?.id || "", // ✅ set dynamically
+  // userId: loggedInUser?.id || "", // ✅ set dynamically
   imagePath: "",
   price: "",
   duration: "",
