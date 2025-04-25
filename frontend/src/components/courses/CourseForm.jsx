@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+
+const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
 const defaultForm = {
   title: "",
@@ -8,18 +11,27 @@ const defaultForm = {
   url: "",
   category: "",
   completed: false,
-  userId: "test",
-  imagePath: ""
+  userId: loggedInUser?.id || "", // ✅ set dynamically
+  imagePath: "",
+  price: "",
+  duration: "",
+  level: "Beginner",
 };
 
 const CourseForm = ({ onSubmit, selected }) => {
   const [form, setForm] = useState(defaultForm);
   const [preview, setPreview] = useState(null);
-  const fileInputRef = useRef(null); // to reset file input manually
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (selected) {
-      setForm(selected);
+      setForm({
+        ...defaultForm,
+        ...selected,
+        price: selected.price || "",
+        duration: selected.duration || "",
+        level: selected.level || "Beginner",
+      });
       setPreview(selected.imagePath ? `http://localhost:8080${selected.imagePath}` : null);
     } else {
       setForm(defaultForm);
@@ -36,64 +48,191 @@ const CourseForm = ({ onSubmit, selected }) => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
-  
+
     try {
-      console.log("Uploading image...");
       const res = await axios.post("http://localhost:8080/skillsync/images/upload", formData);
       const imagePath = res.data;
-      console.log("✅ Image uploaded. Received path:", imagePath); // 👈 ADD THIS
       setForm((prev) => ({ ...prev, imagePath }));
       setPreview(`http://localhost:8080${imagePath}`);
     } catch (err) {
       console.error("❌ Image upload failed:", err);
+      toast.error("Image upload failed!");
     }
   };
-  
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("🟡 FINAL form.imagePath before submit:", form.imagePath); // ✅
-    onSubmit(form);
-    setForm(defaultForm);
-    setPreview(null);
+    try {
+      await onSubmit(form);
+      if (selected) {
+        toast.success("Learning plan updated successfully!", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+      } else {
+        toast.success("Learning plan added successfully!", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+      }
+      setForm(defaultForm);
+      setPreview(null);
+    } catch (error) {
+      toast.error("Failed to submit the form!");
+      console.error(error);
+    }
   };
-  
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 p-4 bg-gray-50 rounded-xl shadow">
-      <h2 className="text-lg font-semibold">{selected ? "Update Course" : "Add New Course"}</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 rounded-xl shadow-lg space-y-5 border border-gray-200"
+    >
+      <h2 className="text-2xl font-bold text-blue-900">
+        {selected ? "✏️ Update Learning Plan" : "📘 Add New Learning Plan"}
+      </h2>
 
-      {/* ✅ Image Preview */}
+      {/* Title */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Title</label>
+        <input
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          placeholder="Enter course title"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
+
+      {/* Platform */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Platform</label>
+        <input
+          name="platform"
+          value={form.platform}
+          onChange={handleChange}
+          placeholder="Platform (ex: Coursera)"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
+
+      {/* Short Description */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Short Description</label>
+        <textarea
+          name="shortDescription"
+          value={form.shortDescription}
+          onChange={handleChange}
+          placeholder="Brief summary about the learning plan..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-md h-24 resize-none focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
+
+      {/* Image Preview */}
       {preview && (
         <img
           src={preview}
-          alt="Course Preview"
-          className="w-full h-40 object-cover rounded-md mb-2"
+          alt="Preview"
+          className="w-full h-40 object-cover rounded-md border border-gray-200"
         />
       )}
 
-      {/* ✅ Image Upload */}
-      <input
-        type="file"
-        onChange={handleImageUpload}
-        ref={fileInputRef}
-        className="input"
-      />
+      {/* Image Upload */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Upload Image</label>
+        <input
+          type="file"
+          onChange={handleImageUpload}
+          ref={fileInputRef}
+          className="w-full text-sm text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-900 file:text-white hover:file:bg-blue-800"
+        />
+      </div>
 
-      <input className="input" name="title" placeholder="Title" value={form.title} onChange={handleChange} />
-      <input className="input" name="platform" placeholder="Platform" value={form.platform} onChange={handleChange} />
-      <textarea className="input" name="shortDescription" placeholder="Short Description" value={form.shortDescription} onChange={handleChange} />
-      <input className="input" name="url" placeholder="URL" value={form.url} onChange={handleChange} />
-      <input className="input" name="category" placeholder="Category" value={form.category} onChange={handleChange} />
+      {/* URL */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Course URL</label>
+        <input
+          name="url"
+          value={form.url}
+          onChange={handleChange}
+          placeholder="https://example.com"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
 
-      <label className="flex items-center space-x-2">
-        <input type="checkbox" name="completed" checked={form.completed} onChange={handleChange} />
-        <span>Completed</span>
-      </label>
+      {/* Category */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Category</label>
+        <input
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          placeholder="e.g. Frontend, Backend"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
 
-      <button type="submit" className="bg-blue-600 text-white py-1 px-4 rounded hover:bg-blue-700">
-        {selected ? "Update" : "Add"} Course
-      </button>
+      {/* Price */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Price (USD)</label>
+        <input
+          type="number"
+          name="price"
+          value={form.price}
+          onChange={handleChange}
+          placeholder="Ex: 150"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
+
+      {/* Duration */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Duration</label>
+        <input
+          name="duration"
+          value={form.duration}
+          onChange={handleChange}
+          placeholder="Ex: 1 - 4 Weeks"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        />
+      </div>
+
+      {/* Level */}
+      <div>
+        <label className="block font-medium text-gray-700 mb-1">Level</label>
+        <select
+          name="level"
+          value={form.level}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-900 focus:outline-none"
+        >
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+
+      {/* Completed */}
+      <div className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          name="completed"
+          checked={form.completed}
+          onChange={handleChange}
+          className="w-4 h-4 text-blue-900 border-gray-300 rounded focus:ring-blue-900"
+        />
+        <label className="text-sm text-gray-700">Mark as Completed</label>
+      </div>
+
+      {/* Submit Button */}
+      <div className="pt-2">
+        <button
+          type="submit"
+          className="w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded-md text-sm font-semibold transition"
+        >
+          {selected ? "Update Learning Plan" : "Add Learning Plan"}
+        </button>
+      </div>
     </form>
   );
 };
