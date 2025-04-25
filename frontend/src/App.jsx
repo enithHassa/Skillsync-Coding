@@ -8,6 +8,8 @@ import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
 import SkillsharePost from './components/users/skillpost/SkillsharePost';
+import Comment from './components/interactivity/Comment';
+
 function App() {
   return (
     <>
@@ -18,6 +20,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/update" element={<EditProfile />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/comment" element={<Comment />} />
         
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} />
