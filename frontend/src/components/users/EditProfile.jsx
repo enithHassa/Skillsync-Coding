@@ -9,18 +9,27 @@ import { User } from 'lucide-react';
 export default function EditProfile() {
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem('user'));
-  const [form, setForm] = useState(storedUser);
-  const [iconColor, setIconColor] = useState('blue'); // New state for icon color
+  const [form, setForm] = useState({
+    ...storedUser,
+    iconColor: storedUser.iconColor || 'blue'
+  });
+  const [iconColor, setIconColor] = useState(storedUser.iconColor || 'blue');
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleColorChange = (color) => {
+    setIconColor(color);
+    setForm({ ...form, iconColor: color });
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       const response = await updateUser(storedUser.id, form);
-      localStorage.setItem('user', JSON.stringify(response.data));
+      const updatedUser = { ...response.data, iconColor: form.iconColor };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       toast.success('Profile updated successfully!', {
         onClose: () => navigate('/profile')
       });
@@ -70,7 +79,7 @@ export default function EditProfile() {
               {Object.entries(colorOptions).map(([color, gradient]) => (
                 <button
                   key={color}
-                  onClick={() => setIconColor(color)}
+                  onClick={() => handleColorChange(color)}
                   className={`w-8 h-8 rounded-full bg-gradient-to-r ${gradient} ${iconColor === color ? 'ring-2 ring-offset-2 ring-gray-400' : ''}`}
                 />
               ))}

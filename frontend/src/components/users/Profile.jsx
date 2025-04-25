@@ -7,6 +7,15 @@ export default function Profile() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  // Color options for the profile icon
+  const colorOptions = {
+    blue: 'from-blue-400 to-purple-500',
+    green: 'from-green-400 to-teal-500',
+    pink: 'from-pink-400 to-rose-500',
+    orange: 'from-orange-400 to-red-500',
+    indigo: 'from-indigo-400 to-violet-500'
+  };
+
   useEffect(() => {
     const syncUser = () => {
       const updatedUser = JSON.parse(localStorage.getItem('user'));
@@ -32,7 +41,7 @@ export default function Profile() {
         <div className="bg-white p-10 rounded-lg shadow-lg w-[500px]">
           {/* Profile Icon */}
           <div className="flex justify-center mb-8">
-            <div className="w-40 h-40 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300">
+            <div className={`w-40 h-40 bg-gradient-to-r ${colorOptions[user?.iconColor || 'blue']} rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300`}>
               <User size={80} className="text-white" />
             </div>
           </div>
