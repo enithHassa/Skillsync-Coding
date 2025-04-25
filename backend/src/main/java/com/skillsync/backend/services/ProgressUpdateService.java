@@ -6,7 +6,7 @@ import com.skillsync.backend.models.ProgressUpdate;
 import com.skillsync.backend.repositories.ProgressUpdateRepository;
 
 import java.time.LocalDateTime;
-import java.time.LocalDate;
+//import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
