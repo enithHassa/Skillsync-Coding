@@ -20,7 +20,7 @@ public class SkillPostController {
     @Autowired
     private SkillPostRepository postRepository;
 
-    private final String uploadDir = "uploads/";
+    private final String uploadDir = Paths.get("").toAbsolutePath().toString() + "/uploads/";
 
     // 🆕 Create a new post with media upload
     @PostMapping
