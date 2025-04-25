@@ -6,7 +6,7 @@ import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
 import { toast } from 'react-toastify';
 
-const Comments = ({ postId, currentUserId, postOwnerId }) => {
+const Comments = ({ postId, currentUserId, postOwnerId, onCommentAdded, onCommentDeleted }) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,11 +35,13 @@ const Comments = ({ postId, currentUserId, postOwnerId }) => {
   const handleCommentAdded = (newComment) => {
     setComments(prevComments => [...prevComments, newComment]);
     toast.success('Comment added successfully!');
+    if (onCommentAdded) onCommentAdded();
   };
 
   const handleCommentDeleted = (commentId) => {
     setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
     toast.success('Comment deleted successfully!');
+    if (onCommentDeleted) onCommentDeleted();
   };
 
   const handleReplyAdded = () => {

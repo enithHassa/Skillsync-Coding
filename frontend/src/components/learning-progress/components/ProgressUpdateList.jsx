@@ -99,61 +99,18 @@ const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
     });
 
   return (
-    <div className="space-y-4 mt-6">
-      {/* Filter and Sort options */}
-      <div className="flex justify-between mb-4 px-4">
-        <div className="space-x-4">
-          {/* Filter Dropdown */}
-          <select
-            onChange={(e) => setFilterType(e.target.value)}
-            value={filterType}
-            className="border p-2 rounded"
-          >
-            <option value="ALL">All Types</option>
-            <option value="COMPLETED_TUTORIAL">Completed Tutorial</option>
-            <option value="LEARNED_CONCEPT">Learned Concept</option>
-            <option value="FINISHED_PROJECT">Finished Project</option>
-            <option value="READ_ARTICLE">Read Article</option>
-            <option value="JOINED_CHALLENGE">Joined Challenge</option>
-            <option value="ACHIEVED_GOAL">Achieved Goal</option>
-          </select>
-
-          {/* Sort Dropdown */}
-          <select
-            onChange={(e) => setSortOption(e.target.value)}
-            value={sortOption}
-            className="border p-2 rounded"
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="completed_asc">Completed Date ↑</option>
-            <option value="completed_desc">Completed Date ↓</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Progress Updates List */}
-      {filteredAndSortedUpdates.map(update => (
-        <div key={update.id} className="border p-4 rounded-xl shadow bg-white space-y-2">
-          {editId === update.id ? (
-            <form className="space-y-2">
-              <input
-                className="w-full border p-2 rounded"
-                value={formState.title}
-                onChange={(e) => setFormState({ ...formState, title: e.target.value })}
-                placeholder="Title"
-              />
-              <textarea
-                className="w-full border p-2 rounded"
-                value={formState.description}
-                onChange={(e) => setFormState({ ...formState, description: e.target.value })}
-                placeholder="What did you learn?"
-              />
+    <div className="max-w-4xl mx-auto">
+      {/* Filter and Sort Controls */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
               <select
-                className="w-full border p-2 rounded"
-                value={formState.type}
-                onChange={(e) => setFormState({ ...formState, type: e.target.value })}
+                onChange={(e) => setFilterType(e.target.value)}
+                value={filterType}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 appearance-none pr-8"
               >
+                <option value="ALL">All Types</option>
                 <option value="COMPLETED_TUTORIAL">Completed Tutorial</option>
                 <option value="LEARNED_CONCEPT">Learned Concept</option>
                 <option value="FINISHED_PROJECT">Finished Project</option>
@@ -161,84 +118,198 @@ const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
                 <option value="JOINED_CHALLENGE">Joined Challenge</option>
                 <option value="ACHIEVED_GOAL">Achieved Goal</option>
               </select>
-              <input        
-                className="w-full border p-2 rounded"
-                type="date"
-                value={formState.completedDate}
-                onChange={(e) => setFormState({ ...formState, completedDate: e.target.value })}
-                placeholder="Completed Date"
-                required
-                max={new Date().toLocaleDateString('en-CA')}
-              />
-              <input
-                className="w-full border p-2 rounded"
-                type="url"
-                value={formState.link}
-                onChange={(e) => setFormState({ ...formState, link: e.target.value })}
-                placeholder="Course Link (optional)"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleUpdate(update.id)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditId(null)}
-                  className="bg-gray-400 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
-            </form>
-          ) : (
-            <>
-               <h2 className="text-xl font-semibold">{update.title}</h2>
+            </div>
 
-              <p className="mt-2">{update.description}</p>
-
-              {update.completedDate && (
-                <p className="text-sm text-gray-500">
-                  {update.type} on {new Date(update.completedDate).toLocaleDateString()}
-                </p>
-              )}
-              
-              {update.link && (
-                <a
-                  href={update.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 text-sm underline"
-                >
-                  View Course Link
-                </a>
-              )}
-              
-              <p className="text-sm text-gray-500">
-                Progress added on {new Date(update.progressDate).toLocaleDateString()}
-              </p>
-
-              <div className="mt-4 space-x-2">
-                <button
-                  onClick={() => handleEditClick(update)}
-                  className="bg-yellow-400 text-white px-4 py-2 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(update.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Delete
-                </button>
+            <div className="relative flex-1 sm:flex-none">
+              <select
+                onChange={(e) => setSortOption(e.target.value)}
+                value={sortOption}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 appearance-none pr-8"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="completed_asc">Completed Date ↑</option>
+                <option value="completed_desc">Completed Date ↓</option>
+              </select>
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
-            </>
-          )}
+            </div>
+          </div>
+
+          <div className="text-sm text-gray-600">
+            Showing {filteredAndSortedUpdates.length} updates
+          </div>
         </div>
-      ))}
+      </div>
+
+      {/* Progress Updates List */}
+      <div className="space-y-4">
+        {filteredAndSortedUpdates.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No updates found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {filterType === 'ALL' 
+                ? "Start by adding your first learning progress update!"
+                : "No updates found for the selected filter."}
+            </p>
+          </div>
+        ) : (
+          filteredAndSortedUpdates.map(update => (
+            <div key={update.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+              {editId === update.id ? (
+                <form className="p-6 space-y-6">
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">Title</label>
+                      <input
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50"
+                        value={formState.title}
+                        onChange={(e) => setFormState({ ...formState, title: e.target.value })}
+                        placeholder="What did you accomplish?"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">Description</label>
+                      <textarea
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50 min-h-[120px]"
+                        value={formState.description}
+                        onChange={(e) => setFormState({ ...formState, description: e.target.value })}
+                        placeholder="What did you learn?"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Type</label>
+                        <select
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50"
+                          value={formState.type}
+                          onChange={(e) => setFormState({ ...formState, type: e.target.value })}
+                        >
+                          <option value="COMPLETED_TUTORIAL">Completed Tutorial</option>
+                          <option value="LEARNED_CONCEPT">Learned Concept</option>
+                          <option value="FINISHED_PROJECT">Finished Project</option>
+                          <option value="READ_ARTICLE">Read Article</option>
+                          <option value="JOINED_CHALLENGE">Joined Challenge</option>
+                          <option value="ACHIEVED_GOAL">Achieved Goal</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-700">Completed Date</label>
+                        <input
+                          className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50"
+                          type="date"
+                          value={formState.completedDate}
+                          onChange={(e) => setFormState({ ...formState, completedDate: e.target.value })}
+                          required
+                          max={new Date().toLocaleDateString('en-CA')}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">Resource Link (Optional)</label>
+                      <input
+                        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 bg-gray-50"
+                        type="url"
+                        value={formState.link}
+                        onChange={(e) => setFormState({ ...formState, link: e.target.value })}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setEditId(null)}
+                      className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdate(update.id)}
+                      className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition duration-200"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-800">{update.title}</h2>
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          {update.type.replace(/_/g, ' ')}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(update.completedDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditClick(update)}
+                        className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(update.id)}
+                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-gray-600 leading-relaxed">{update.description}</p>
+
+                  {update.link && (
+                    <a
+                      href={update.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center text-blue-600 hover:text-blue-800"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      View Resource
+                    </a>
+                  )}
+
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-sm text-gray-500">
+                      Progress added on {new Date(update.progressDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
