@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../main-main/Navbar';
 import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
+import Comments from '../interactivity/Comments';
 
 export default function SkillsharePost() {
   const [imagePreview, setImagePreview] = useState(null);
@@ -11,14 +12,31 @@ export default function SkillsharePost() {
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-  const userId = '12345';
+  const [visibleComments, setVisibleComments] = useState(new Set());
+  const [commentCounts, setCommentCounts] = useState({});
+  const currentUser = JSON.parse(localStorage.getItem('user'));
+  const userId = currentUser?.id || '12345';
+
+  const fetchCommentCount = async (postId) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/comments/post/${postId}`);
+      const parentComments = response.data.filter(comment => !comment.parentCommentId);
+      setCommentCounts(prev => ({
+        ...prev,
+        [postId]: parentComments.length
+      }));
+    } catch (err) {
+      console.error('Failed to fetch comments for post:', postId, err);
+    }
+  };
 
   const fetchPosts = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/posts');
       setPosts(response.data);
-      // Log the response to debug mediaUrls
-      console.log('Fetched posts:', response.data);
+      response.data.forEach(post => {
+        fetchCommentCount(post.id);
+      });
     } catch (err) {
       setError('Failed to fetch posts: ' + (err.response?.data || err.message));
     }
@@ -121,6 +139,18 @@ export default function SkillsharePost() {
     console.error(`Failed to load image for post ${postId}: ${url}`);
   };
 
+  const toggleComments = (postId) => {
+    setVisibleComments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <>
       <Navbar />
@@ -212,7 +242,6 @@ export default function SkillsharePost() {
               {posts.map((post) => {
                 const isLiked = post.likes?.includes(userId);
                 const imageUrl = post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null;
-                // Log the image URL for debugging
                 if (imageUrl) {
                   console.log(`Image URL for post ${post.id}: ${imageUrl}`);
                 } else {
@@ -257,9 +286,16 @@ export default function SkillsharePost() {
                           <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
                           <span>{post.likes?.length || 0}</span>
                         </button>
-                        <button className="flex items-center gap-1 text-gray-500 hover:text-green-600">
+                        <button
+                          onClick={() => toggleComments(post.id)}
+                          className={`flex items-center gap-1 ${
+                            visibleComments.has(post.id) 
+                              ? 'text-green-600' 
+                              : 'text-gray-500 hover:text-green-600'
+                          }`}
+                        >
                           <MessageCircle size={18} />
-                          <span>0</span>
+                          <span>{commentCounts[post.id] || 0}</span>
                         </button>
                       </div>
                       <div className="flex gap-2">
@@ -277,6 +313,18 @@ export default function SkillsharePost() {
                         </button>
                       </div>
                     </div>
+
+                    {visibleComments.has(post.id) && (
+                      <div className="mt-4 border-t pt-4">
+                        <Comments
+                          postId={post.id}
+                          currentUserId={userId}
+                          postOwnerId={post.userId}
+                          onCommentAdded={() => fetchCommentCount(post.id)}
+                          onCommentDeleted={() => fetchCommentCount(post.id)}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
