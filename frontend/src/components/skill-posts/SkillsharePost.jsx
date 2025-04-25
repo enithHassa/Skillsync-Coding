@@ -200,7 +200,7 @@ export default function SkillsharePost() {
     <>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Navbar />
-      <div className="max-w-4xl mx-auto mt-10 px-4">
+      <div className="max-w-5xl mx-auto mt-10 px-4">
         <div className="fixed right-6 bottom-6 z-50">
           <button
             onClick={() => setIsModalOpen(true)}
@@ -305,7 +305,7 @@ export default function SkillsharePost() {
                 return (
                   <div
                     key={post.id}
-                    className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-md mx-auto"
+                    className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-sm text-gray-500">
