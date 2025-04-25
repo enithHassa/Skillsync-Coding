@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
 import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
 
 export default function SkillsharePost() {
+  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
@@ -11,7 +13,19 @@ export default function SkillsharePost() {
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-  const userId = '12345';
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      // Redirect to login if no user is found
+      navigate('/');
+    }
+  }, [navigate]);
+
+  const userId = currentUser?.id;
 
   const fetchPosts = async () => {
     try {
@@ -37,11 +51,17 @@ export default function SkillsharePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!currentUser) {
+      setError('Please log in to create a post');
+      navigate('/');
+      return;
+    }
+
     setError('');
     setSuccess('');
 
     const formData = new FormData();
-    formData.append('userId', userId);
+    formData.append('userId', currentUser.id);
     formData.append('description', description);
 
     const fileInput = e.target.querySelector('input[type="file"]');
@@ -81,13 +101,21 @@ export default function SkillsharePost() {
   };
 
   const handleEdit = (post) => {
+    if (post.userId !== currentUser?.id) {
+      setError('You can only edit your own posts');
+      return;
+    }
     setEditingPost(post);
     setDescription(post.description);
     setImagePreview(post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (postId) => {
+  const handleDelete = async (postId, postUserId) => {
+    if (postUserId !== currentUser?.id) {
+      setError('You can only delete your own posts');
+      return;
+    }
     try {
       await axios.delete(`http://localhost:8080/api/posts/${postId}`);
       fetchPosts();
@@ -97,10 +125,15 @@ export default function SkillsharePost() {
   };
 
   const handleLike = async (postId, isLiked) => {
+    if (!currentUser) {
+      setError('Please log in to like posts');
+      navigate('/');
+      return;
+    }
     try {
       await axios.post(
         `http://localhost:8080/api/posts/${postId}/like`,
-        { userId, action: isLiked ? 'unlike' : 'like' }
+        { userId: currentUser.id, action: isLiked ? 'unlike' : 'like' }
       );
       fetchPosts();
     } catch (err) {
@@ -115,10 +148,17 @@ export default function SkillsharePost() {
     setImagePreview(null);
   };
 
+  if (!currentUser) {
+    return null; // Don't render anything while redirecting to login
+  }
+
   return (
     <>
       <Navbar />
       <div className="max-w-4xl mx-auto mt-10 px-4">
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+        {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
+        
         {/* Plus Icon for New Post */}
         <div className="fixed right-6 bottom-6 z-50">
           <button
@@ -144,8 +184,6 @@ export default function SkillsharePost() {
                   ✕
                 </button>
               </div>
-              {error && <p className="text-red-500 mb-4">{error}</p>}
-              {success && <p className="text-green-500 mb-4">{success}</p>}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block mb-1 font-semibold">Upload Image</label>
@@ -204,7 +242,8 @@ export default function SkillsharePost() {
           ) : (
             <div className="space-y-6">
               {posts.map((post) => {
-                const isLiked = post.likes?.includes(userId);
+                const isLiked = post.likes?.includes(currentUser.id);
+                const isOwnPost = post.userId === currentUser.id;
                 return (
                   <div
                     key={post.id}
@@ -213,7 +252,7 @@ export default function SkillsharePost() {
                     {/* Post Header */}
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-sm text-gray-500">
-                        Posted by User {post.userId} on{' '}
+                        Posted by {post.userName || (isOwnPost ? `${currentUser.firstName} ${currentUser.lastName}` : `User ${post.userId}`)} on{' '}
                         {new Date(post.createdAt).toLocaleString()}
                       </p>
                     </div>
@@ -245,20 +284,22 @@ export default function SkillsharePost() {
                           <span>0</span>
                         </button>
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(post)}
-                          className="text-gray-500 hover:text-blue-600"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id)}
-                          className="text-gray-500 hover:text-red-600"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
+                      {isOwnPost && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(post)}
+                            className="text-gray-500 hover:text-blue-600"
+                          >
+                            <Pencil size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(post.id, post.userId)}
+                            className="text-gray-500 hover:text-red-600"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
