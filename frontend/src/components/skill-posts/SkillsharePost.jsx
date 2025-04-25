@@ -19,11 +19,31 @@ export default function SkillsharePost() {
   const [expandedImage, setExpandedImage] = useState(null);
   const [visibleComments, setVisibleComments] = useState(new Set());
   const [commentCounts, setCommentCounts] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [likes, setLikes] = useState(() => {
+    try {
+      const savedLikes = localStorage.getItem('postLikes');
+      return savedLikes ? JSON.parse(savedLikes) : {};
+    } catch (err) {
+      console.error('Error loading likes from localStorage:', err);
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('postLikes', JSON.stringify(likes));
+    } catch (err) {
+      console.error('Error saving likes to localStorage:', err);
+    }
+  }, [likes]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       setCurrentUser(user);
+      fetchPosts();
     } else {
       navigate('/');
     }
@@ -31,34 +51,49 @@ export default function SkillsharePost() {
 
   const userId = currentUser?.id;
 
+  // Reset comment counts when component mounts or posts change
+  useEffect(() => {
+    if (posts.length > 0) {
+      // Clear existing counts first
+      setCommentCounts({});
+      // Fetch fresh counts for all posts
+      posts.forEach(post => fetchCommentCount(post.id));
+    }
+  }, [posts]);
+
   const fetchCommentCount = async (postId) => {
     try {
       const response = await axios.get(`http://localhost:8080/api/comments/post/${postId}`);
-      const parentComments = response.data.filter(comment => !comment.parentCommentId);
+      const comments = response.data;
+      const parentComments = comments.filter(comment => !comment.parentCommentId);
+      
       setCommentCounts(prev => ({
         ...prev,
         [postId]: parentComments.length
       }));
     } catch (err) {
       console.error('Failed to fetch comments for post:', postId, err);
+      // Set count to 0 on error to avoid stale data
+      setCommentCounts(prev => ({
+        ...prev,
+        [postId]: 0
+      }));
     }
   };
 
   const fetchPosts = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       const response = await axios.get('http://localhost:8080/api/posts');
       setPosts(response.data);
-      response.data.forEach(post => {
-        fetchCommentCount(post.id);
-      });
     } catch (err) {
+      setError('Failed to fetch posts: ' + (err.response?.data || err.message));
       toast.error('Failed to fetch posts: ' + (err.response?.data || err.message));
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -155,20 +190,54 @@ export default function SkillsharePost() {
     }
   };
 
-  const handleLike = async (postId, isLiked) => {
+  const handleLike = (postId) => {
     if (!currentUser) {
       toast.error('Please log in to like posts');
       navigate('/');
       return;
     }
+
+    setLikes(prevLikes => {
+      const postLikes = prevLikes[postId] || { count: 0, users: [] };
+      const userIndex = postLikes.users.indexOf(currentUser.id);
+      
+      if (userIndex === -1) {
+        return {
+          ...prevLikes,
+          [postId]: {
+            count: postLikes.count + 1,
+            users: [...postLikes.users, currentUser.id]
+          }
+        };
+      } else {
+        const updatedUsers = [...postLikes.users];
+        updatedUsers.splice(userIndex, 1);
+        return {
+          ...prevLikes,
+          [postId]: {
+            count: postLikes.count - 1,
+            users: updatedUsers
+          }
+        };
+      }
+    });
+  };
+
+  const isPostLikedByUser = (postId) => {
     try {
-      await axios.post(
-        `http://localhost:8080/api/posts/${postId}/like`,
-        { userId: currentUser.id, action: isLiked ? 'unlike' : 'like' }
-      );
-      fetchPosts();
+      return likes[postId]?.users.includes(currentUser?.id);
     } catch (err) {
-      toast.error('Failed to update like: ' + (err.response?.data || err.message));
+      console.error('Error checking like status:', err);
+      return false;
+    }
+  };
+
+  const getLikeCount = (postId) => {
+    try {
+      return likes[postId]?.count || 0;
+    } catch (err) {
+      console.error('Error getting like count:', err);
+      return 0;
     }
   };
 
@@ -180,7 +249,7 @@ export default function SkillsharePost() {
     setIsVideo(false);
   };
 
-  const toggleComments = (postId) => {
+  const toggleComments = async (postId) => {
     setVisibleComments(prev => {
       const newSet = new Set(prev);
       if (newSet.has(postId)) {
@@ -190,6 +259,8 @@ export default function SkillsharePost() {
       }
       return newSet;
     });
+    // Always fetch fresh count when toggling
+    await fetchCommentCount(postId);
   };
 
   if (!currentUser) {
@@ -295,12 +366,26 @@ export default function SkillsharePost() {
 
         <div>
           <h2 className="text-2xl font-bold mb-6 text-center">Posts</h2>
-          {posts.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500">Loading posts...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-10">
+              <p className="text-red-500">{error}</p>
+              <button 
+                onClick={fetchPosts}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : posts.length === 0 ? (
             <p className="text-center text-gray-500">No posts available.</p>
           ) : (
             <div className="space-y-6">
               {posts.map((post) => {
-                const isLiked = post.likes?.includes(currentUser.id);
+                const isLiked = isPostLikedByUser(post.id);
                 const isOwnPost = post.userId === currentUser.id;
                 return (
                   <div
@@ -380,11 +465,16 @@ export default function SkillsharePost() {
                     <div className="flex justify-between items-center text-sm text-gray-500 border-t pt-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleLike(post.id, isLiked)}
-                          className={`flex items-center gap-1 ${isLiked ? 'text-red-600' : 'text-gray-500 hover:text-red-600'}`}
+                          onClick={() => handleLike(post.id)}
+                          className={`flex items-center gap-1 ${
+                            isPostLikedByUser(post.id) ? 'text-red-600' : 'text-gray-500 hover:text-red-600'
+                          }`}
                         >
-                          <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                          <span>{post.likes?.length || 0}</span>
+                          <Heart
+                            size={18}
+                            fill={isPostLikedByUser(post.id) ? 'currentColor' : 'none'}
+                          />
+                          <span>{getLikeCount(post.id)}</span>
                         </button>
                         <button
                           onClick={() => toggleComments(post.id)}
@@ -422,8 +512,12 @@ export default function SkillsharePost() {
                           postId={post.id}
                           currentUserId={userId}
                           postOwnerId={post.userId}
-                          onCommentAdded={() => fetchCommentCount(post.id)}
-                          onCommentDeleted={() => fetchCommentCount(post.id)}
+                          onCommentAdded={async () => {
+                            await fetchCommentCount(post.id);
+                          }}
+                          onCommentDeleted={async () => {
+                            await fetchCommentCount(post.id);
+                          }}
                         />
                       </div>
                     )}
