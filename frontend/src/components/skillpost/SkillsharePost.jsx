@@ -20,7 +20,6 @@ export default function SkillsharePost() {
     if (user) {
       setCurrentUser(user);
     } else {
-      // Redirect to login if no user is found
       navigate('/');
     }
   }, [navigate]);
@@ -149,7 +148,7 @@ export default function SkillsharePost() {
   };
 
   if (!currentUser) {
-    return null; // Don't render anything while redirecting to login
+    return null;
   }
 
   return (
@@ -159,7 +158,6 @@ export default function SkillsharePost() {
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
         
-        {/* Plus Icon for New Post */}
         <div className="fixed right-6 bottom-6 z-50">
           <button
             onClick={() => setIsModalOpen(true)}
@@ -169,7 +167,6 @@ export default function SkillsharePost() {
           </button>
         </div>
 
-        {/* Modal for Post Creation/Editing */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
@@ -234,7 +231,6 @@ export default function SkillsharePost() {
           </div>
         )}
 
-        {/* Posts Display */}
         <div>
           <h2 className="text-2xl font-bold mb-6 text-center">Posts</h2>
           {posts.length === 0 ? (
@@ -249,15 +245,16 @@ export default function SkillsharePost() {
                     key={post.id}
                     className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-md mx-auto"
                   >
-                    {/* Post Header */}
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-sm text-gray-500">
-                        Posted by {post.userName || (isOwnPost ? `${currentUser.firstName} ${currentUser.lastName}` : `User ${post.userId}`)} on{' '}
+                        <span className="font-bold text-base text-gray-800">
+                          {post.userName || (isOwnPost ? `${currentUser.firstName} ${currentUser.lastName}` : `User ${post.userId}`)}
+                        </span>
+                        {' '}posted on{' '}
                         {new Date(post.createdAt).toLocaleString()}
                       </p>
                     </div>
 
-                    {/* Post Content */}
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>
                     {post.mediaUrls && post.mediaUrls.length > 0 && (
                       <div className="mb-3">
@@ -269,7 +266,6 @@ export default function SkillsharePost() {
                       </div>
                     )}
 
-                    {/* Post Actions */}
                     <div className="flex justify-between items-center text-sm text-gray-500 border-t pt-2">
                       <div className="flex items-center gap-2">
                         <button
