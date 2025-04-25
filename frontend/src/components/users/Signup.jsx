@@ -48,7 +48,7 @@ export default function Signup() {
         <span className="text-blue-800">Skill</span>
         <span className="text-gray-700">Sync</span>
         <Code2 
-          className="mx-1 text-gray-600 transform translate-y-4" 
+          className="mx-1 text-gray-600 transform translate-y-3" 
           size={48} 
         />
       </h1>
