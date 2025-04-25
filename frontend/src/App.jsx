@@ -9,6 +9,13 @@ import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
 
 
+import SkillsharePost from './components/skill-posts/SkillsharePost';
+import CourseManager from './components/courses/CourseList'
+import ProgressPage from './components/learning-progress/pages/ProgressPage';
+import Comments from './components/interactivity/Comments';
+
+
+
 function App() {
   return (
     <>
@@ -19,6 +26,13 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/update" element={<EditProfile />} />
         <Route path="/logout" element={<Logout />} />
+
+
+        <Route path="/plans" element={<CourseManager />} /> {/* ✅ New route */}
+        <Route path="/s" element={<SkillsharePost />} />
+        <Route path="/courses" element={<CourseManager />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/comments/:id" element={<Comments />} />
 
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} />
