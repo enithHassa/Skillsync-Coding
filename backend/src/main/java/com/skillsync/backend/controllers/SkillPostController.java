@@ -33,9 +33,13 @@ public class SkillPostController {
     public ResponseEntity<?> createPost(
         @RequestParam("userId") String userId,
         @RequestParam("description") String description,
-        @RequestParam(value = "media", required = false) List<MultipartFile> mediaFiles
+        @RequestParam(value = "media", required = false) MultipartFile[] mediaFiles
     ) {
         try {
+            if (mediaFiles != null && mediaFiles.length > 3) {
+                return ResponseEntity.badRequest().body("Maximum 3 images allowed per post");
+            }
+
             File uploadPath = new File(uploadDir);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
@@ -44,10 +48,12 @@ public class SkillPostController {
             List<String> mediaPaths = new ArrayList<>();
             if (mediaFiles != null) {
                 for (MultipartFile file : mediaFiles) {
-                    String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
-                    Path destinationPath = Paths.get(uploadDir, fileName);
-                    Files.write(destinationPath, file.getBytes());
-                    mediaPaths.add("/uploads/" + fileName);
+                    if (!file.isEmpty()) {
+                        String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+                        Path destinationPath = Paths.get(uploadDir, fileName);
+                        Files.write(destinationPath, file.getBytes());
+                        mediaPaths.add("/uploads/" + fileName);
+                    }
                 }
             }
 
@@ -92,9 +98,13 @@ public class SkillPostController {
         @PathVariable("id") String id,
         @RequestParam("userId") String userId,
         @RequestParam("description") String description,
-        @RequestParam(value = "media", required = false) List<MultipartFile> mediaFiles
+        @RequestParam(value = "media", required = false) MultipartFile[] mediaFiles
     ) {
         try {
+            if (mediaFiles != null && mediaFiles.length > 3) {
+                return ResponseEntity.badRequest().body("Maximum 3 images allowed per post");
+            }
+
             Optional<SkillPost> optionalPost = postRepository.findById(id);
             if (optionalPost.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
@@ -104,7 +114,7 @@ public class SkillPostController {
             post.setUserId(userId);
             post.setDescription(description);
 
-            if (mediaFiles != null && !mediaFiles.isEmpty()) {
+            if (mediaFiles != null && mediaFiles.length > 0) {
                 List<String> mediaPaths = new ArrayList<>();
                 File uploadPath = new File(uploadDir);
                 if (!uploadPath.exists()) {
@@ -112,10 +122,12 @@ public class SkillPostController {
                 }
 
                 for (MultipartFile file : mediaFiles) {
-                    String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
-                    Path destinationPath = Paths.get(uploadDir, fileName);
-                    Files.write(destinationPath, file.getBytes());
-                    mediaPaths.add("/uploads/" + fileName);
+                    if (!file.isEmpty()) {
+                        String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+                        Path destinationPath = Paths.get(uploadDir, fileName);
+                        Files.write(destinationPath, file.getBytes());
+                        mediaPaths.add("/uploads/" + fileName);
+                    }
                 }
 
                 post.setMediaUrls(mediaPaths); // Replace old media

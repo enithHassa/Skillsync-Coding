@@ -252,12 +252,15 @@ export default function SkillsharePost() {
 
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>
                     {post.mediaUrls && post.mediaUrls.length > 0 && (
-                      <div className="mb-3">
-                        <img
-                          src={`http://localhost:8080${post.mediaUrls[0]}`}
-                          alt="Post media"
-                          className="w-full aspect-square object-cover rounded-md"
-                        />
+                      <div className="mb-3 grid grid-cols-1 gap-4">
+                        {post.mediaUrls.map((url, index) => (
+                          <img
+                            key={index}
+                            src={`http://localhost:8080${url}`}
+                            alt={`Post media ${index + 1}`}
+                            className="w-full h-96 object-cover rounded-lg shadow-md"
+                          />
+                        ))}
                       </div>
                     )}
 
