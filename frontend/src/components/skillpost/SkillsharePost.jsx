@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [videoPreview, setVideoPreview] = useState(null);
   const [isVideo, setIsVideo] = useState(false);
   const [description, setDescription] = useState('');
@@ -42,28 +42,18 @@ export default function SkillsharePost() {
   }, []);
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type.startsWith('video/')) {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-        video.onloadedmetadata = () => {
-          if (video.duration > 30) {
-            toast.error('Video must be 30 seconds or less');
-            e.target.value = '';
-            return;
-          }
-          setVideoPreview(URL.createObjectURL(file));
-          setIsVideo(true);
-        };
-        video.src = URL.createObjectURL(file);
-      } else {
-        setImagePreview(URL.createObjectURL(file));
-        setIsVideo(false);
-      }
+    const files = Array.from(e.target.files);
+    if (files.length > 3) {
+      toast.error('You can only upload up to 3 images');
+      return;
+    }
+    
+    if (files.length > 0) {
+      const previews = files.map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
+      setIsVideo(false);
     } else {
-      setImagePreview(editingPost?.mediaUrls?.[0] ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
-      setVideoPreview(null);
+      setImagePreviews(editingPost?.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
       setIsVideo(false);
     }
   };
@@ -82,8 +72,10 @@ export default function SkillsharePost() {
     formData.append('isVideo', isVideo);
 
     const fileInput = e.target.querySelector('input[type="file"]');
-    if (fileInput.files[0]) {
-      formData.append('media', fileInput.files[0]);
+    if (fileInput.files.length > 0) {
+      Array.from(fileInput.files).forEach(file => {
+        formData.append('media', file);
+      });
     }
 
     try {
@@ -104,8 +96,7 @@ export default function SkillsharePost() {
       }
 
       setDescription('');
-      setImagePreview(null);
-      setVideoPreview(null);
+      setImagePreviews([]);
       setIsVideo(false);
       fileInput.value = '';
       setEditingPost(null);
@@ -126,16 +117,8 @@ export default function SkillsharePost() {
     }
     setEditingPost(post);
     setDescription(post.description);
-    const mediaUrl = post.mediaUrls?.[0];
-    if (mediaUrl) {
-      if (post.isVideo) {
-        setVideoPreview(`http://localhost:8080${mediaUrl}`);
-        setIsVideo(true);
-      } else {
-        setImagePreview(`http://localhost:8080${mediaUrl}`);
-        setIsVideo(false);
-      }
-    }
+    setImagePreviews(post.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
+    setIsVideo(post.isVideo);
     setIsModalOpen(true);
   };
 
@@ -174,8 +157,7 @@ export default function SkillsharePost() {
     setIsModalOpen(false);
     setEditingPost(null);
     setDescription('');
-    setImagePreview(null);
-    setVideoPreview(null);
+    setImagePreviews([]);
     setIsVideo(false);
   };
 
@@ -213,30 +195,36 @@ export default function SkillsharePost() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-semibold">Upload Image or Video (max 30s)</label>
+                  <label className="block mb-1 font-semibold">Upload Images (max 3) or Video (max 30s)</label>
                   <input
                     type="file"
                     accept="image/*,video/mp4,video/quicktime"
+                    multiple
                     onChange={handleImageChange}
                     className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
-                  {imagePreview && !isVideo && (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="mt-3 w-full h-48 object-cover rounded-md"
-                    />
+                  {imagePreviews.length > 0 && !isVideo && (
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {imagePreviews.map((preview, index) => (
+                        <img
+                          key={index}
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-md"
+                        />
+                      ))}
+                    </div>
                   )}
-                  {videoPreview && isVideo && (
+                  {isVideo && (
                     <video
-                      src={videoPreview}
+                      src={imagePreviews[0]}
                       controls
                       className="mt-3 w-full h-48 object-cover rounded-md"
                       preload="metadata"
                       playsInline
                       controlsList="nodownload"
                     >
-                      <source src={videoPreview} type="video/mp4" />
+                      <source src={imagePreviews[0]} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   )}
