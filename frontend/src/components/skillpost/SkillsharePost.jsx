@@ -8,11 +8,14 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function SkillsharePost() {
   const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
+  const [isVideo, setIsVideo] = useState(false);
   const [description, setDescription] = useState('');
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [expandedImage, setExpandedImage] = useState(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -41,9 +44,27 @@ export default function SkillsharePost() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImagePreview(URL.createObjectURL(file));
+      if (file.type.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          if (video.duration > 30) {
+            toast.error('Video must be 30 seconds or less');
+            e.target.value = '';
+            return;
+          }
+          setVideoPreview(URL.createObjectURL(file));
+          setIsVideo(true);
+        };
+        video.src = URL.createObjectURL(file);
+      } else {
+        setImagePreview(URL.createObjectURL(file));
+        setIsVideo(false);
+      }
     } else {
       setImagePreview(editingPost?.mediaUrls?.[0] ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
+      setVideoPreview(null);
+      setIsVideo(false);
     }
   };
 
@@ -58,6 +79,7 @@ export default function SkillsharePost() {
     const formData = new FormData();
     formData.append('userId', currentUser.id);
     formData.append('description', description);
+    formData.append('isVideo', isVideo);
 
     const fileInput = e.target.querySelector('input[type="file"]');
     if (fileInput.files[0]) {
@@ -83,6 +105,8 @@ export default function SkillsharePost() {
 
       setDescription('');
       setImagePreview(null);
+      setVideoPreview(null);
+      setIsVideo(false);
       fileInput.value = '';
       setEditingPost(null);
       fetchPosts();
@@ -102,7 +126,16 @@ export default function SkillsharePost() {
     }
     setEditingPost(post);
     setDescription(post.description);
-    setImagePreview(post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null);
+    const mediaUrl = post.mediaUrls?.[0];
+    if (mediaUrl) {
+      if (post.isVideo) {
+        setVideoPreview(`http://localhost:8080${mediaUrl}`);
+        setIsVideo(true);
+      } else {
+        setImagePreview(`http://localhost:8080${mediaUrl}`);
+        setIsVideo(false);
+      }
+    }
     setIsModalOpen(true);
   };
 
@@ -142,6 +175,8 @@ export default function SkillsharePost() {
     setEditingPost(null);
     setDescription('');
     setImagePreview(null);
+    setVideoPreview(null);
+    setIsVideo(false);
   };
 
   if (!currentUser) {
@@ -178,19 +213,32 @@ export default function SkillsharePost() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-semibold">Upload Image</label>
+                  <label className="block mb-1 font-semibold">Upload Image or Video (max 30s)</label>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/mp4,video/quicktime"
                     onChange={handleImageChange}
                     className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
-                  {imagePreview && (
+                  {imagePreview && !isVideo && (
                     <img
                       src={imagePreview}
                       alt="Preview"
                       className="mt-3 w-full h-48 object-cover rounded-md"
                     />
+                  )}
+                  {videoPreview && isVideo && (
+                    <video
+                      src={videoPreview}
+                      controls
+                      className="mt-3 w-full h-48 object-cover rounded-md"
+                      preload="metadata"
+                      playsInline
+                      controlsList="nodownload"
+                    >
+                      <source src={videoPreview} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
                   )}
                 </div>
 
@@ -252,15 +300,61 @@ export default function SkillsharePost() {
 
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>
                     {post.mediaUrls && post.mediaUrls.length > 0 && (
-                      <div className="mb-3 grid grid-cols-1 gap-4">
-                        {post.mediaUrls.map((url, index) => (
+                      <div className="mb-3">
+                        {post.isVideo ? (
+                          <div className="relative w-full">
+                            <video
+                              src={`http://localhost:8080${post.mediaUrls[0]}`}
+                              controls
+                              className="w-full h-96 object-cover rounded-lg shadow-md"
+                              preload="metadata"
+                              playsInline
+                              controlsList="nodownload"
+                            >
+                              <source src={`http://localhost:8080${post.mediaUrls[0]}`} type="video/mp4" />
+                              Your browser does not support the video tag.
+                            </video>
+                          </div>
+                        ) : post.mediaUrls.length === 1 ? (
                           <img
-                            key={index}
-                            src={`http://localhost:8080${url}`}
-                            alt={`Post media ${index + 1}`}
-                            className="w-full h-96 object-cover rounded-lg shadow-md"
+                            src={`http://localhost:8080${post.mediaUrls[0]}`}
+                            alt="Post media"
+                            className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => setExpandedImage(`http://localhost:8080${post.mediaUrls[0]}`)}
                           />
-                        ))}
+                        ) : post.mediaUrls.length === 2 ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {post.mediaUrls.map((url, index) => (
+                              <img
+                                key={index}
+                                src={`http://localhost:8080${url}`}
+                                alt={`Post media ${index + 1}`}
+                                className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2">
+                            {post.mediaUrls.map((url, index) => (
+                              <div
+                                key={index}
+                                className={`${
+                                  index === 0 && post.mediaUrls.length === 3
+                                    ? 'row-span-2'
+                                    : ''
+                                }`}
+                              >
+                                <img
+                                  src={`http://localhost:8080${url}`}
+                                  alt={`Post media ${index + 1}`}
+                                  className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+                                  onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -302,6 +396,27 @@ export default function SkillsharePost() {
           )}
         </div>
       </div>
+
+      {expandedImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+          onClick={() => setExpandedImage(null)}
+        >
+          <div className="relative max-w-4xl w-full mx-4">
+            <button
+              onClick={() => setExpandedImage(null)}
+              className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300"
+            >
+              ✕
+            </button>
+            <img
+              src={expandedImage}
+              alt="Expanded view"
+              className="max-h-[90vh] w-auto mx-auto"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }
