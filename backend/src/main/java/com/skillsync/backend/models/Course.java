@@ -15,14 +15,18 @@ public class Course {
     private String category;
     private boolean completed;
     private String userId;
-    private String imagePath;  // ✅ This will be the local path or URL
+    private String imagePath;
 
+    // ✅ New fields
+    private String duration; // e.g. "1 - 4 Weeks"
+    private String level;    // e.g. "Beginner", "Intermediate"
+    private double price;    // e.g. 150.00
 
-    // Default constructor
+    // Constructor
     public Course() {}
 
-    // Constructor with all fields
-    public Course(String title, String platform, String shortDescription, String url, String category, boolean completed, String userId) {
+    public Course(String title, String platform, String shortDescription, String url, String category,
+                  boolean completed, String userId, String duration, String level, double price) {
         this.title = title;
         this.platform = platform;
         this.shortDescription = shortDescription;
@@ -30,9 +34,34 @@ public class Course {
         this.category = category;
         this.completed = completed;
         this.userId = userId;
+        this.duration = duration;
+        this.level = level;
+        this.price = price;
     }
 
-    // 🔁 Generate Getters & Setters (in IDE or manually)
+    // ✅ Getters and Setters for new fields
+    public String getDuration() {
+        return duration;
+    }
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    // 🔁 Existing Getters and Setters remain unchanged
     public String getId() {
         return id;
     }
@@ -95,6 +124,4 @@ public class Course {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
-    
 }
-
