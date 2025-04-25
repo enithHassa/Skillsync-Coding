@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../main-main/Navbar';
+import Comments from '../interactivity/Comments';
 
 export default function SkillsharePost() {
   const [imagePreviews, setImagePreviews] = useState([]);
@@ -13,8 +14,9 @@ export default function SkillsharePost() {
   const [editDescription, setEditDescription] = useState('');
   const [editImagePreviews, setEditImagePreviews] = useState([]);
 
-  // Hardcoded userId for demo purposes; replace with actual user authentication
-  const userId = '12345';
+  // Get current user from localStorage
+  const currentUser = JSON.parse(localStorage.getItem('user'));
+  const userId = currentUser?.id || null; // Use actual user ID from auth
 
   // Backend base URL (adjust if your backend runs on a different port)
   const BASE_URL = 'http://localhost:8080';
@@ -318,19 +320,30 @@ export default function SkillsharePost() {
                         Posted by User {post.userId} on{' '}
                         {new Date(post.createdAt).toLocaleString()}
                       </p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(post)}
-                          className="flex-1 bg-yellow-600 text-white py-2 rounded hover:bg-yellow-700"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id)}
-                          className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700"
-                        >
-                          Delete
-                        </button>
+                      {userId === post.userId && (
+                        <div className="flex gap-2 mb-4">
+                          <button
+                            onClick={() => handleEdit(post)}
+                            className="flex-1 bg-yellow-600 text-white py-2 rounded hover:bg-yellow-700"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(post.id)}
+                            className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Comments Section */}
+                      <div className="mt-4 border-t pt-4">
+                        <Comments
+                          postId={post.id}
+                          currentUserId={userId}
+                          postOwnerId={post.userId}
+                        />
                       </div>
                     </>
                   )}

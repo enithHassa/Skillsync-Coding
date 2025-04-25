@@ -16,6 +16,8 @@ public class CommentDTO {
     private String content;
     private String postId;
     private String userId;
+    private String userDisplayName;
+    private String userProfileImage;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String parentCommentId;

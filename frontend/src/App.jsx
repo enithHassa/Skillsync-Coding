@@ -10,7 +10,7 @@ import Signup from './components/users/Signup';
 import SkillsharePost from './components/skill-posts/SkillsharePost';
 import CourseManager from './components/courses/CourseList';
 import ProgressPage from './components/learning-progress/pages/ProgressPage';
-import Comment from './components/interactivity/Comment';
+import Comments from './components/interactivity/Comments';
 
 function App() {
   return (
@@ -26,7 +26,7 @@ function App() {
         <Route path="/s" element={<SkillsharePost />} />
         <Route path="/courses" element={<CourseManager />} />
         <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/comment" element={<Comment />} />
+        <Route path="/comments/:id" element={<Comments />} />
 
       </Routes>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} />

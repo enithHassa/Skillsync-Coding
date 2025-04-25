@@ -5,6 +5,7 @@ import com.skillsync.backend.models.SkillPost;
 import com.skillsync.backend.models.User;
 import com.skillsync.backend.repositories.CommentRepository;
 import com.skillsync.backend.repositories.SkillPostRepository;
+import com.skillsync.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class CommentService {
     
     @Autowired
     private SkillPostRepository skillPostRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     
     // Create a new comment
     public Comment createComment(String content, String postId, String userId, String parentCommentId) {
@@ -30,8 +34,16 @@ public class CommentService {
         if (post.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
         }
+
+        // Get user information
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         
         Comment comment = new Comment(content, postId, userId, parentCommentId);
+        comment.setUserDisplayName(user.get().getDisplayName());
+        comment.setUserProfileImage(user.get().getProfileImage());
         
         // If this is a reply to another comment, update the parent
         if (parentCommentId != null) {

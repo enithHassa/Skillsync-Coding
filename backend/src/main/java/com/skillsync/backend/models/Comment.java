@@ -21,6 +21,8 @@ public class Comment {
     private String content;
     private String postId;         // Reference to the post this comment belongs to
     private String userId;         // User who wrote the comment
+    private String userDisplayName; // Display name of the user
+    private String userProfileImage; // Profile image URL of the user
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     

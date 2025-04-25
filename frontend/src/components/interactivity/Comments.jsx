@@ -1,8 +1,10 @@
 // src/components/interactivity/Comments.jsx
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { commentService } from '../../services/commentService';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
+import { toast } from 'react-toastify';
 
 const Comments = ({ postId, currentUserId, postOwnerId }) => {
   const [comments, setComments] = useState([]);
@@ -10,6 +12,8 @@ const Comments = ({ postId, currentUserId, postOwnerId }) => {
   const [error, setError] = useState(null);
 
   const fetchComments = async () => {
+    if (!postId) return;
+    
     setLoading(true);
     try {
       const data = await commentService.getPostComments(postId);
@@ -18,32 +22,43 @@ const Comments = ({ postId, currentUserId, postOwnerId }) => {
     } catch (err) {
       setError('Failed to load comments. Please try again later.');
       console.error('Error fetching comments:', err);
+      toast.error('Failed to load comments');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (postId) {
-      fetchComments();
-    }
+    fetchComments();
   }, [postId]);
 
   const handleCommentAdded = (newComment) => {
-    setComments([...comments, newComment]);
+    setComments(prevComments => [...prevComments, newComment]);
+    toast.success('Comment added successfully!');
   };
 
   const handleCommentDeleted = (commentId) => {
-    setComments(comments.filter(comment => comment.id !== commentId));
+    setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
+    toast.success('Comment deleted successfully!');
   };
 
   const handleReplyAdded = () => {
-    // Optionally refresh all comments if needed
-    // fetchComments();
+    // Refresh comments to get the updated reply structure
+    fetchComments();
+    toast.success('Reply added successfully!');
   };
 
+  // Don't show comments section if no authenticated user
+  if (!currentUserId) {
+    return (
+      <div className="text-center py-4">
+        <p className="text-gray-500">Please log in to view and post comments.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow p-4 mt-4">
+    <div className="comments-section">
       <h3 className="text-lg font-semibold mb-4">Comments</h3>
       
       <CommentForm
@@ -72,7 +87,7 @@ const Comments = ({ postId, currentUserId, postOwnerId }) => {
             <p className="text-gray-500">No comments yet. Be the first to comment!</p>
           </div>
         ) : (
-          <div>
+          <div className="space-y-4">
             {comments.map((comment) => (
               <CommentItem
                 key={comment.id}

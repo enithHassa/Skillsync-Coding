@@ -74,15 +74,17 @@ public class CommentController {
     
     // Helper method to convert Comment to CommentDTO
     private CommentDTO convertToDTO(Comment comment) {
-        return new CommentDTO(
-            comment.getId(),
-            comment.getContent(),
-            comment.getPostId(),
-            comment.getUserId(),
-            comment.getCreatedAt(),
-            comment.getUpdatedAt(),
-            comment.getParentCommentId(),
-            comment.getReplies()
-        );
+        CommentDTO dto = new CommentDTO();
+        dto.setId(comment.getId());
+        dto.setContent(comment.getContent());
+        dto.setPostId(comment.getPostId());
+        dto.setUserId(comment.getUserId());
+        dto.setUserDisplayName(comment.getUserDisplayName());
+        dto.setUserProfileImage(comment.getUserProfileImage());
+        dto.setCreatedAt(comment.getCreatedAt());
+        dto.setUpdatedAt(comment.getUpdatedAt());
+        dto.setParentCommentId(comment.getParentCommentId());
+        dto.setReplies(comment.getReplies());
+        return dto;
     }
 }
