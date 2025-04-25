@@ -6,12 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.skillsync.backend.controllers.UserController;
+import com.skillsync.backend.services.UserService;
 import com.skillsync.backend.models.User;
 
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -20,7 +23,10 @@ public class SkillPostController {
     @Autowired
     private SkillPostRepository postRepository;
 
-    private final String uploadDir = "uploads/";
+    @Autowired
+    private UserService userService;
+
+    private final String uploadDir = Paths.get("").toAbsolutePath().toString() + "/uploads/";
 
     // 🆕 Create a new post with media upload
     @PostMapping
@@ -59,8 +65,25 @@ public class SkillPostController {
 
     // ✅ Get all posts
     @GetMapping
-    public List<SkillPost> getAllPosts() {
-        return postRepository.findAll();
+    public List<Map<String, Object>> getAllPosts() {
+        List<SkillPost> posts = postRepository.findAll();
+        return posts.stream().map(post -> {
+            Map<String, Object> postWithUser = new HashMap<>();
+            postWithUser.put("id", post.getId());
+            postWithUser.put("description", post.getDescription());
+            postWithUser.put("userId", post.getUserId());
+            postWithUser.put("mediaUrls", post.getMediaUrls());
+            postWithUser.put("createdAt", post.getCreatedAt());
+            
+            try {
+                User user = userService.getUserById(post.getUserId());
+                postWithUser.put("userName", user.getFirstName() + " " + user.getLastName());
+            } catch (Exception e) {
+                postWithUser.put("userName", "Unknown User");
+            }
+            
+            return postWithUser;
+        }).collect(Collectors.toList());
     }
 
     // 🛠️ Update a post

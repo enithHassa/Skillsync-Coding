@@ -1,26 +1,36 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
 import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SkillsharePost() {
+  const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-  const userId = '12345';
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      navigate('/');
+    }
+  }, [navigate]);
+
+  const userId = currentUser?.id;
 
   const fetchPosts = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/posts');
       setPosts(response.data);
-      // Log the response to debug mediaUrls
-      console.log('Fetched posts:', response.data);
     } catch (err) {
-      setError('Failed to fetch posts: ' + (err.response?.data || err.message));
+      toast.error('Failed to fetch posts: ' + (err.response?.data || err.message));
     }
   };
 
@@ -39,11 +49,14 @@ export default function SkillsharePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    if (!currentUser) {
+      toast.error('Please log in to create a post');
+      navigate('/');
+      return;
+    }
 
     const formData = new FormData();
-    formData.append('userId', userId);
+    formData.append('userId', currentUser.id);
     formData.append('description', description);
 
     const fileInput = e.target.querySelector('input[type="file"]');
@@ -58,14 +71,14 @@ export default function SkillsharePost() {
             'Content-Type': 'multipart/form-data',
           },
         });
-        setSuccess('Post updated successfully!');
+        toast.success('Post updated successfully!');
       } else {
         await axios.post('http://localhost:8080/api/posts', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        setSuccess('Post created successfully!');
+        toast.success('Post created successfully!');
       }
 
       setDescription('');
@@ -75,7 +88,7 @@ export default function SkillsharePost() {
       fetchPosts();
       setIsModalOpen(false);
     } catch (err) {
-      setError(
+      toast.error(
         `Failed to ${editingPost ? 'update' : 'create'} post: ` +
           (err.response?.data || err.message)
       );
@@ -83,30 +96,44 @@ export default function SkillsharePost() {
   };
 
   const handleEdit = (post) => {
+    if (post.userId !== currentUser?.id) {
+      toast.error('You can only edit your own posts');
+      return;
+    }
     setEditingPost(post);
     setDescription(post.description);
     setImagePreview(post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (postId) => {
+  const handleDelete = async (postId, postUserId) => {
+    if (postUserId !== currentUser?.id) {
+      toast.error('You can only delete your own posts');
+      return;
+    }
     try {
       await axios.delete(`http://localhost:8080/api/posts/${postId}`);
+      toast.success('Post deleted successfully!');
       fetchPosts();
     } catch (err) {
-      setError('Failed to delete post: ' + (err.response?.data || err.message));
+      toast.error('Failed to delete post: ' + (err.response?.data || err.message));
     }
   };
 
   const handleLike = async (postId, isLiked) => {
+    if (!currentUser) {
+      toast.error('Please log in to like posts');
+      navigate('/');
+      return;
+    }
     try {
       await axios.post(
         `http://localhost:8080/api/posts/${postId}/like`,
-        { userId, action: isLiked ? 'unlike' : 'like' }
+        { userId: currentUser.id, action: isLiked ? 'unlike' : 'like' }
       );
       fetchPosts();
     } catch (err) {
-      setError('Failed to update like: ' + (err.response?.data || err.message));
+      toast.error('Failed to update like: ' + (err.response?.data || err.message));
     }
   };
 
@@ -117,15 +144,15 @@ export default function SkillsharePost() {
     setImagePreview(null);
   };
 
-  const handleImageError = (postId, url) => {
-    console.error(`Failed to load image for post ${postId}: ${url}`);
-  };
+  if (!currentUser) {
+    return null;
+  }
 
   return (
     <>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Navbar />
       <div className="max-w-4xl mx-auto mt-10 px-4">
-        {/* Plus Icon for New Post */}
         <div className="fixed right-6 bottom-6 z-50">
           <button
             onClick={() => setIsModalOpen(true)}
@@ -135,7 +162,6 @@ export default function SkillsharePost() {
           </button>
         </div>
 
-        {/* Modal for Post Creation/Editing */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
@@ -150,8 +176,6 @@ export default function SkillsharePost() {
                   ✕
                 </button>
               </div>
-              {error && <p className="text-red-500 mb-4">{error}</p>}
-              {success && <p className="text-green-500 mb-4">{success}</p>}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block mb-1 font-semibold">Upload Image</label>
@@ -202,7 +226,6 @@ export default function SkillsharePost() {
           </div>
         )}
 
-        {/* Posts Display */}
         <div>
           <h2 className="text-2xl font-bold mb-6 text-center">Posts</h2>
           {posts.length === 0 ? (
@@ -210,44 +233,34 @@ export default function SkillsharePost() {
           ) : (
             <div className="space-y-6">
               {posts.map((post) => {
-                const isLiked = post.likes?.includes(userId);
-                const imageUrl = post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null;
-                // Log the image URL for debugging
-                if (imageUrl) {
-                  console.log(`Image URL for post ${post.id}: ${imageUrl}`);
-                } else {
-                  console.log(`No image URL for post ${post.id}`);
-                }
-
+                const isLiked = post.likes?.includes(currentUser.id);
+                const isOwnPost = post.userId === currentUser.id;
                 return (
                   <div
                     key={post.id}
                     className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-md mx-auto"
                   >
-                    {/* Post Header */}
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-sm text-gray-500">
-                        Posted by User {post.userId} on{' '}
+                        <span className="font-bold text-base text-gray-800">
+                          {post.userName || (isOwnPost ? `${currentUser.firstName} ${currentUser.lastName}` : `User ${post.userId}`)}
+                        </span>
+                        {' '}posted on{' '}
                         {new Date(post.createdAt).toLocaleString()}
                       </p>
                     </div>
 
-                    {/* Post Content */}
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>
-                    {imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt="Post media"
-                        className="w-full aspect-square object-cover rounded-md"
-                        onError={() => handleImageError(post.id, imageUrl)}
-                      />
-                    ) : (
-                      <div className="w-full aspect-square bg-gray-200 flex items-center justify-center rounded-md">
-                        <p className="text-gray-500">No image available</p>
+                    {post.mediaUrls && post.mediaUrls.length > 0 && (
+                      <div className="mb-3">
+                        <img
+                          src={`http://localhost:8080${post.mediaUrls[0]}`}
+                          alt="Post media"
+                          className="w-full aspect-square object-cover rounded-md"
+                        />
                       </div>
                     )}
 
-                    {/* Post Actions */}
                     <div className="flex justify-between items-center text-sm text-gray-500 border-t pt-2">
                       <div className="flex items-center gap-2">
                         <button
@@ -262,20 +275,22 @@ export default function SkillsharePost() {
                           <span>0</span>
                         </button>
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(post)}
-                          className="text-gray-500 hover:text-blue-600"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(post.id)}
-                          className="text-gray-500 hover:text-red-600"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
+                      {isOwnPost && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(post)}
+                            className="text-gray-500 hover:text-blue-600"
+                          >
+                            <Pencil size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(post.id, post.userId)}
+                            className="text-gray-500 hover:text-red-600"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

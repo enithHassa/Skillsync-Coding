@@ -7,7 +7,8 @@ import {
   UserCircle,
   LogOut,
   User,
-  X
+  X,
+  Home
 } from 'lucide-react';
 import logo from '../../assets/skillsync-logo.png';
 
@@ -19,6 +20,11 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/');
+  };
+
+  const navigateToHome = () => {
+    navigate('/home');
+    setSidebarOpen(false);
   };
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -38,7 +44,7 @@ export default function Navbar() {
           />
           <h1
             className="text-xl font-bold text-blue-600 cursor-pointer"
-            onClick={() => navigate('/home')}
+            onClick={navigateToHome}
           >
             SkillSync
           </h1>
@@ -121,7 +127,13 @@ export default function Navbar() {
         <div className="fixed top-0 left-0 w-64 h-full bg-blue-100 shadow-lg p-4 z-40 transition-transform duration-300 ease-in-out">
           <h2 className="text-xl font-bold mb-4">Menu</h2>
           <ul className="space-y-4">
-            <li className="cursor-pointer hover:text-blue-700">Dashboard</li>
+            <li 
+              className="flex items-center space-x-2 cursor-pointer hover:text-blue-700"
+              onClick={navigateToHome}
+            >
+              <Home className="w-5 h-5" />
+              <span>Dashboard</span>
+            </li>
             <li className="cursor-pointer hover:text-blue-700">My Posts</li>
             <li className="cursor-pointer hover:text-blue-700">Settings</li>
             <li className="cursor-pointer hover:text-blue-700">Help</li>

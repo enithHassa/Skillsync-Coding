@@ -48,6 +48,7 @@ const CommentItem = ({ comment, currentUserId, postOwnerId, onCommentDeleted, on
       try {
         const fetchedReplies = await commentService.getCommentReplies(comment.id);
         setReplies(fetchedReplies);
+        comment.replies = fetchedReplies.map(reply => reply.id);
       } catch (error) {
         console.error('Failed to load replies:', error);
       } finally {
@@ -59,6 +60,7 @@ const CommentItem = ({ comment, currentUserId, postOwnerId, onCommentDeleted, on
 
   const handleReplyAdded = (newReply) => {
     setReplies([...replies, newReply]);
+    comment.replies = [...(comment.replies || []), newReply.id];
     setShowReplies(true);
     setShowReplyForm(false);
     onReplyAdded();
@@ -66,6 +68,7 @@ const CommentItem = ({ comment, currentUserId, postOwnerId, onCommentDeleted, on
 
   const handleReplyDeleted = (replyId) => {
     setReplies(replies.filter(reply => reply.id !== replyId));
+    comment.replies = comment.replies.filter(id => id !== replyId);
   };
 
   const formatDate = (dateString) => {
@@ -82,7 +85,7 @@ const CommentItem = ({ comment, currentUserId, postOwnerId, onCommentDeleted, on
       <div className="flex items-start">
         <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
           <span className="text-gray-700 font-medium">
-            {comment.userId.slice(0, 2).toUpperCase()}
+            {comment.userDisplayName ? comment.userDisplayName.charAt(0).toUpperCase() : comment.userId.slice(0, 1).toUpperCase()}
           </span>
         </div>
         <div className="ml-3 flex-grow">
