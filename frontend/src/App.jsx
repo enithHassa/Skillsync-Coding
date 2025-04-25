@@ -13,18 +13,6 @@ import CourseManager from './components/courses/CourseList';
 import ProgressPage from './components/learning-progress/pages/ProgressPage';
 import Comments from './components/interactivity/Comments';
 
-import SkillsharePost from './components/skill-posts/SkillsharePost';
-// import CourseManager from './components/courses/CourseList'
-import ProgressPage from './components/learning-progress/pages/ProgressPage';
-import Comments from './components/interactivity/Comments';
-import CoursePage from './components/courses/CoursePage';
-
-
-
-
-
-
-
 function App() {
   return (
     <Router>
@@ -44,6 +32,8 @@ function App() {
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/comments/:id" element={<Comments />} />
 
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>
   );
