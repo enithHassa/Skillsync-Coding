@@ -8,16 +8,19 @@ import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
 import Home from './components/main-main/Home';
-import SkillsharePost from './components/skill-posts/SkillsharePost';
+
 import CourseManager from './components/courses/CourseList';
-import ProgressPage from './components/learning-progress/pages/ProgressPage';
+
 import Comments from './components/interactivity/Comments';
 
 import SkillsharePost from './components/skill-posts/SkillsharePost';
 // import CourseManager from './components/courses/CourseList'
 import ProgressPage from './components/learning-progress/pages/ProgressPage';
-import Comments from './components/interactivity/Comments';
+
 import CoursePage from './components/courses/CoursePage';
+
+
+
 
 
 
@@ -43,6 +46,25 @@ function App() {
         <Route path="/plans" element={<CourseManager />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/comments/:id" element={<Comments />} />
+
+
+
+        
+
+        <Route path="/s" element={<SkillsharePost />} />
+
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/comments/:id" element={<Comments />} />
+
+
+        <Route path="/plans" element={<CoursePage />} />
+        <Route path="/courses" element={<CoursePage />} />
+        
+
+
+=======
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
 
       </Routes>
     </Router>
