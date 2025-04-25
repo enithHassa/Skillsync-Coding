@@ -7,8 +7,6 @@ import Profile from './components/users/Profile';
 import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
-import SkillsharePost from './components/skill-posts/SkillsharePost';
-
 
 import SkillsharePost from './components/skill-posts/SkillsharePost';
 import CourseManager from './components/courses/CourseList';
