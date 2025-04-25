@@ -5,9 +5,11 @@ import com.skillsync.backend.models.SkillPost;
 import com.skillsync.backend.models.User;
 import com.skillsync.backend.repositories.CommentRepository;
 import com.skillsync.backend.repositories.SkillPostRepository;
+import com.skillsync.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,22 @@ public class CommentService {
     
     @Autowired
     private SkillPostRepository skillPostRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+    
+    // Delete all comments for a post
+    @Transactional
+    public void deleteAllCommentsForPost(String postId) {
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        for (Comment comment : comments) {
+            // First delete all replies to this comment
+            List<Comment> replies = commentRepository.findByParentCommentId(comment.getId());
+            commentRepository.deleteAll(replies);
+        }
+        // Then delete all top-level comments
+        commentRepository.deleteAll(comments);
+    }
     
     // Create a new comment
     public Comment createComment(String content, String postId, String userId, String parentCommentId) {
@@ -30,8 +48,16 @@ public class CommentService {
         if (post.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found");
         }
+
+        // Get user information
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
         
         Comment comment = new Comment(content, postId, userId, parentCommentId);
+        comment.setUserDisplayName(user.get().getDisplayName());
+        comment.setUserProfileImage(user.get().getProfileImage());
         
         // If this is a reply to another comment, update the parent
         if (parentCommentId != null) {
