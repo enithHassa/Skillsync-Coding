@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
 import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import Comments from '../interactivity/Comments';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function SkillsharePost() {
   const [editingPost, setEditingPost] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [expandedImage, setExpandedImage] = useState(null);
+  const [visibleComments, setVisibleComments] = useState(new Set());
+  const [commentCounts, setCommentCounts] = useState({});
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -28,10 +31,26 @@ export default function SkillsharePost() {
 
   const userId = currentUser?.id;
 
+  const fetchCommentCount = async (postId) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/comments/post/${postId}`);
+      const parentComments = response.data.filter(comment => !comment.parentCommentId);
+      setCommentCounts(prev => ({
+        ...prev,
+        [postId]: parentComments.length
+      }));
+    } catch (err) {
+      console.error('Failed to fetch comments for post:', postId, err);
+    }
+  };
+
   const fetchPosts = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/posts');
       setPosts(response.data);
+      response.data.forEach(post => {
+        fetchCommentCount(post.id);
+      });
     } catch (err) {
       toast.error('Failed to fetch posts: ' + (err.response?.data || err.message));
     }
@@ -159,6 +178,18 @@ export default function SkillsharePost() {
     setDescription('');
     setImagePreviews([]);
     setIsVideo(false);
+  };
+
+  const toggleComments = (postId) => {
+    setVisibleComments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
   };
 
   if (!currentUser) {
@@ -355,9 +386,16 @@ export default function SkillsharePost() {
                           <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
                           <span>{post.likes?.length || 0}</span>
                         </button>
-                        <button className="flex items-center gap-1 text-gray-500 hover:text-green-600">
+                        <button
+                          onClick={() => toggleComments(post.id)}
+                          className={`flex items-center gap-1 ${
+                            visibleComments.has(post.id) 
+                              ? 'text-green-600' 
+                              : 'text-gray-500 hover:text-green-600'
+                          }`}
+                        >
                           <MessageCircle size={18} />
-                          <span>0</span>
+                          <span>{commentCounts[post.id] || 0}</span>
                         </button>
                       </div>
                       {isOwnPost && (
@@ -377,6 +415,18 @@ export default function SkillsharePost() {
                         </div>
                       )}
                     </div>
+
+                    {visibleComments.has(post.id) && (
+                      <div className="mt-4 border-t pt-4">
+                        <Comments
+                          postId={post.id}
+                          currentUserId={userId}
+                          postOwnerId={post.userId}
+                          onCommentAdded={() => fetchCommentCount(post.id)}
+                          onCommentDeleted={() => fetchCommentCount(post.id)}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
