@@ -12,7 +12,6 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.8.4",
-    "date-fns": "^4.1.0",
     "jiti": "^2.4.2",
     "lucide-react": "^0.488.0",
     "react": "^19.0.0",
