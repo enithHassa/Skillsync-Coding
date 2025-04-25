@@ -87,7 +87,9 @@ const CommentItem = ({ comment, currentUserId, postOwnerId, onCommentDeleted, on
         </div>
         <div className="ml-3 flex-grow">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-900">User {comment.userId.slice(0, 5)}</span>
+            <span className="text-sm font-medium text-gray-900">
+              {comment.userDisplayName || `User ${comment.userId.slice(0, 5)}`}
+            </span>
             <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
           </div>
           
