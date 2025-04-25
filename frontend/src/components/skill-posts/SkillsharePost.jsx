@@ -3,13 +3,12 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
 import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
   const [imagePreview, setImagePreview] = useState(null);
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
@@ -31,7 +30,7 @@ export default function SkillsharePost() {
       const response = await axios.get('http://localhost:8080/api/posts');
       setPosts(response.data);
     } catch (err) {
-      setError('Failed to fetch posts: ' + (err.response?.data || err.message));
+      toast.error('Failed to fetch posts: ' + (err.response?.data || err.message));
     }
   };
 
@@ -51,13 +50,10 @@ export default function SkillsharePost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!currentUser) {
-      setError('Please log in to create a post');
+      toast.error('Please log in to create a post');
       navigate('/');
       return;
     }
-
-    setError('');
-    setSuccess('');
 
     const formData = new FormData();
     formData.append('userId', currentUser.id);
@@ -75,14 +71,14 @@ export default function SkillsharePost() {
             'Content-Type': 'multipart/form-data',
           },
         });
-        setSuccess('Post updated successfully!');
+        toast.success('Post updated successfully!');
       } else {
         await axios.post('http://localhost:8080/api/posts', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-        setSuccess('Post created successfully!');
+        toast.success('Post created successfully!');
       }
 
       setDescription('');
@@ -92,7 +88,7 @@ export default function SkillsharePost() {
       fetchPosts();
       setIsModalOpen(false);
     } catch (err) {
-      setError(
+      toast.error(
         `Failed to ${editingPost ? 'update' : 'create'} post: ` +
           (err.response?.data || err.message)
       );
@@ -101,7 +97,7 @@ export default function SkillsharePost() {
 
   const handleEdit = (post) => {
     if (post.userId !== currentUser?.id) {
-      setError('You can only edit your own posts');
+      toast.error('You can only edit your own posts');
       return;
     }
     setEditingPost(post);
@@ -112,20 +108,21 @@ export default function SkillsharePost() {
 
   const handleDelete = async (postId, postUserId) => {
     if (postUserId !== currentUser?.id) {
-      setError('You can only delete your own posts');
+      toast.error('You can only delete your own posts');
       return;
     }
     try {
       await axios.delete(`http://localhost:8080/api/posts/${postId}`);
+      toast.success('Post deleted successfully!');
       fetchPosts();
     } catch (err) {
-      setError('Failed to delete post: ' + (err.response?.data || err.message));
+      toast.error('Failed to delete post: ' + (err.response?.data || err.message));
     }
   };
 
   const handleLike = async (postId, isLiked) => {
     if (!currentUser) {
-      setError('Please log in to like posts');
+      toast.error('Please log in to like posts');
       navigate('/');
       return;
     }
@@ -136,7 +133,7 @@ export default function SkillsharePost() {
       );
       fetchPosts();
     } catch (err) {
-      setError('Failed to update like: ' + (err.response?.data || err.message));
+      toast.error('Failed to update like: ' + (err.response?.data || err.message));
     }
   };
 
@@ -153,11 +150,9 @@ export default function SkillsharePost() {
 
   return (
     <>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Navbar />
       <div className="max-w-4xl mx-auto mt-10 px-4">
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        {success && <p className="text-green-500 mb-4 text-center">{success}</p>}
-        
         <div className="fixed right-6 bottom-6 z-50">
           <button
             onClick={() => setIsModalOpen(true)}
