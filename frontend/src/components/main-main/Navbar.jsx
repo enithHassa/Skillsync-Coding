@@ -85,7 +85,7 @@ export default function Navbar() {
 
                 <div className="relative group">
                   <button 
-                    onClick={() => navigate('/plans')} 
+                    onClick={() => navigate('/courses')} 
                     className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                   >
                     <Book className="w-7 h-7 text-gray-700 group-hover:text-blue-700 transition-colors" />
