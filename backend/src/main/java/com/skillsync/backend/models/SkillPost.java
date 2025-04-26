@@ -16,6 +16,7 @@ public class SkillPost {
     private String userId;
     private List<String> mediaUrls;
     private LocalDateTime createdAt;
+    private boolean isVideo;
 
     public SkillPost() {}
 
@@ -24,6 +25,7 @@ public class SkillPost {
         this.userId = userId;
         this.mediaUrls = mediaUrls;
         this.createdAt = LocalDateTime.now();
+        this.isVideo = false;
     }
 
     // 🔄 Getters and Setters
@@ -66,5 +68,13 @@ public class SkillPost {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isVideo() {
+        return isVideo;
+    }
+
+    public void setVideo(boolean video) {
+        isVideo = video;
     }
 }
