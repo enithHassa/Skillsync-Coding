@@ -11,7 +11,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/skillsync/courses")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000") // Frontend access
+// @CrossOrigin(origins = "http://localhost:3000") // Frontend access
+@CrossOrigin(origins = "http://localhost:5173") // Frontend access
 public class CourseController {
 
     private final CourseRepository courseRepository;
