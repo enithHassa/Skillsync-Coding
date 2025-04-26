@@ -103,12 +103,22 @@ export default function SkillsharePost() {
     }
     
     if (files.length > 0) {
-      const previews = files.map(file => URL.createObjectURL(file));
-      setImagePreviews(previews);
-      setIsVideo(false);
+      const file = files[0];
+      if (file.type.startsWith('video/')) {
+        setIsVideo(true);
+        const preview = URL.createObjectURL(file);
+        setVideoPreview(preview);
+        setImagePreviews([preview]);
+      } else {
+        setIsVideo(false);
+        const previews = files.map(file => URL.createObjectURL(file));
+        setImagePreviews(previews);
+        setVideoPreview(null);
+      }
     } else {
       setImagePreviews(editingPost?.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
-      setIsVideo(false);
+      setIsVideo(editingPost?.isVideo || false);
+      setVideoPreview(editingPost?.isVideo ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
     }
   };
 
@@ -127,9 +137,18 @@ export default function SkillsharePost() {
 
     const fileInput = e.target.querySelector('input[type="file"]');
     if (fileInput.files.length > 0) {
-      Array.from(fileInput.files).forEach(file => {
+      const file = fileInput.files[0];
+      if (file.type.startsWith('video/')) {
+        if (file.size > 30 * 1024 * 1024) { // 30MB limit
+          toast.error('Video file size should be less than 30MB');
+          return;
+        }
         formData.append('media', file);
-      });
+      } else {
+        Array.from(fileInput.files).forEach(file => {
+          formData.append('media', file);
+        });
+      }
     }
 
     try {
@@ -297,11 +316,11 @@ export default function SkillsharePost() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-semibold">Upload Images (max 3) or Video (max 30s)</label>
+                  <label className="block mb-1 font-semibold">Upload Images (max 3) or Video (max 30MB)</label>
                   <input
                     type="file"
                     accept="image/*,video/mp4,video/quicktime"
-                    multiple
+                    multiple={!isVideo}
                     onChange={handleImageChange}
                     className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
@@ -317,18 +336,20 @@ export default function SkillsharePost() {
                       ))}
                     </div>
                   )}
-                  {isVideo && (
-                    <video
-                      src={imagePreviews[0]}
-                      controls
-                      className="mt-3 w-full h-48 object-cover rounded-md"
-                      preload="metadata"
-                      playsInline
-                      controlsList="nodownload"
-                    >
-                      <source src={imagePreviews[0]} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                  {isVideo && videoPreview && (
+                    <div className="mt-3">
+                      <video
+                        src={videoPreview}
+                        controls
+                        className="w-full h-48 object-cover rounded-md"
+                        preload="metadata"
+                        playsInline
+                        controlsList="nodownload"
+                      >
+                        <source src={videoPreview} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
                   )}
                 </div>
 
@@ -408,14 +429,17 @@ export default function SkillsharePost() {
                         {post.isVideo ? (
                           <div className="relative w-full">
                             <video
-                              src={`http://localhost:8080${post.mediaUrls[0]}`}
+                              key={`video-${post.id}`}
+                              className="w-full h-96 object-contain rounded-lg shadow-md bg-black"
                               controls
-                              className="w-full h-96 object-cover rounded-lg shadow-md"
                               preload="metadata"
                               playsInline
                               controlsList="nodownload"
                             >
-                              <source src={`http://localhost:8080${post.mediaUrls[0]}`} type="video/mp4" />
+                              <source 
+                                src={`http://localhost:8080${post.mediaUrls[0]}`} 
+                                type="video/mp4"
+                              />
                               Your browser does not support the video tag.
                             </video>
                           </div>
