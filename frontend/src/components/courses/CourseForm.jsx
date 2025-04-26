@@ -11,7 +11,7 @@ const defaultForm = {
   url: "",
   category: "",
   completed: false,
-  userId: loggedInUser?.id || "", // ✅ set dynamically
+  userId: loggedInUser?.id || "",
   imagePath: "",
   price: "",
   duration: "",
@@ -60,8 +60,43 @@ const CourseForm = ({ onSubmit, selected }) => {
     }
   };
 
+  // ✅ Validate form before submit
+  const validateForm = () => {
+    if (!form.title.trim()) {
+      toast.error("Title is required!");
+      return false;
+    }
+    if (!form.platform.trim()) {
+      toast.error("Platform is required!");
+      return false;
+    }
+    if (!form.shortDescription.trim()) {
+      toast.error("Short Description is required!");
+      return false;
+    }
+    if (!form.url.trim()) {
+      toast.error("Course URL is required!");
+      return false;
+    }
+    if (!form.category.trim()) {
+      toast.error("Category is required!");
+      return false;
+    }
+    if (!form.price || form.price <= 0) {
+      toast.error("Valid price is required!");
+      return false;
+    }
+    if (!form.duration.trim()) {
+      toast.error("Duration is required!");
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return; // ⛔ Don't submit if invalid
+
     try {
       await onSubmit(form);
       if (selected) {
