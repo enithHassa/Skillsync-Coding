@@ -33,9 +33,14 @@ public class SkillPostController {
     public ResponseEntity<?> createPost(
         @RequestParam("userId") String userId,
         @RequestParam("description") String description,
-        @RequestParam(value = "media", required = false) List<MultipartFile> mediaFiles
+        @RequestParam(value = "media", required = false) MultipartFile[] mediaFiles,
+        @RequestParam(value = "isVideo", required = false, defaultValue = "false") boolean isVideo
     ) {
         try {
+            if (mediaFiles != null && mediaFiles.length > 3 && !isVideo) {
+                return ResponseEntity.badRequest().body("Maximum 3 images allowed per post");
+            }
+
             File uploadPath = new File(uploadDir);
             if (!uploadPath.exists()) {
                 uploadPath.mkdirs();
@@ -44,15 +49,18 @@ public class SkillPostController {
             List<String> mediaPaths = new ArrayList<>();
             if (mediaFiles != null) {
                 for (MultipartFile file : mediaFiles) {
-                    String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
-                    Path destinationPath = Paths.get(uploadDir, fileName);
-                    Files.write(destinationPath, file.getBytes());
-                    mediaPaths.add("/uploads/" + fileName);
+                    if (!file.isEmpty()) {
+                        String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+                        Path destinationPath = Paths.get(uploadDir, fileName);
+                        Files.write(destinationPath, file.getBytes());
+                        mediaPaths.add("/uploads/" + fileName);
+                    }
                 }
             }
 
             SkillPost post = new SkillPost(description, userId, mediaPaths);
             post.setCreatedAt(LocalDateTime.now());
+            post.setVideo(isVideo);
 
             postRepository.save(post);
             return ResponseEntity.ok(post);
@@ -74,6 +82,7 @@ public class SkillPostController {
             postWithUser.put("userId", post.getUserId());
             postWithUser.put("mediaUrls", post.getMediaUrls());
             postWithUser.put("createdAt", post.getCreatedAt());
+            postWithUser.put("isVideo", post.isVideo());
             
             try {
                 User user = userService.getUserById(post.getUserId());
@@ -86,15 +95,44 @@ public class SkillPostController {
         }).collect(Collectors.toList());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Map<String, Object>>> getPostsByUserId(@PathVariable String userId) {
+        List<SkillPost> userPosts = postRepository.findByUserId(userId);
+        List<Map<String, Object>> postsWithUserInfo = userPosts.stream().map(post -> {
+            Map<String, Object> postWithUser = new HashMap<>();
+            postWithUser.put("id", post.getId());
+            postWithUser.put("description", post.getDescription());
+            postWithUser.put("userId", post.getUserId());
+            postWithUser.put("mediaUrls", post.getMediaUrls());
+            postWithUser.put("createdAt", post.getCreatedAt());
+            postWithUser.put("isVideo", post.isVideo());
+            
+            try {
+                User user = userService.getUserById(post.getUserId());
+                postWithUser.put("userName", user.getFirstName() + " " + user.getLastName());
+            } catch (Exception e) {
+                postWithUser.put("userName", "Unknown User");
+            }
+            
+            return postWithUser;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(postsWithUserInfo);
+    }
+
     // 🛠️ Update a post
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePost(
         @PathVariable("id") String id,
         @RequestParam("userId") String userId,
         @RequestParam("description") String description,
-        @RequestParam(value = "media", required = false) List<MultipartFile> mediaFiles
+        @RequestParam(value = "media", required = false) MultipartFile[] mediaFiles,
+        @RequestParam(value = "isVideo", required = false, defaultValue = "false") boolean isVideo
     ) {
         try {
+            if (mediaFiles != null && mediaFiles.length > 3 && !isVideo) {
+                return ResponseEntity.badRequest().body("Maximum 3 images allowed per post");
+            }
+
             Optional<SkillPost> optionalPost = postRepository.findById(id);
             if (optionalPost.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
@@ -103,8 +141,9 @@ public class SkillPostController {
             SkillPost post = optionalPost.get();
             post.setUserId(userId);
             post.setDescription(description);
+            post.setVideo(isVideo);
 
-            if (mediaFiles != null && !mediaFiles.isEmpty()) {
+            if (mediaFiles != null && mediaFiles.length > 0) {
                 List<String> mediaPaths = new ArrayList<>();
                 File uploadPath = new File(uploadDir);
                 if (!uploadPath.exists()) {
@@ -112,13 +151,15 @@ public class SkillPostController {
                 }
 
                 for (MultipartFile file : mediaFiles) {
-                    String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
-                    Path destinationPath = Paths.get(uploadDir, fileName);
-                    Files.write(destinationPath, file.getBytes());
-                    mediaPaths.add("/uploads/" + fileName);
+                    if (!file.isEmpty()) {
+                        String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
+                        Path destinationPath = Paths.get(uploadDir, fileName);
+                        Files.write(destinationPath, file.getBytes());
+                        mediaPaths.add("/uploads/" + fileName);
+                    }
                 }
 
-                post.setMediaUrls(mediaPaths); // Replace old media
+                post.setMediaUrls(mediaPaths);
             }
 
             postRepository.save(post);

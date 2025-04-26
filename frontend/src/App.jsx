@@ -12,6 +12,7 @@ import Home from './components/main-main/Home';
 import CourseManager from './components/courses/CourseList';
 
 import Comments from './components/interactivity/Comments';
+import MyPosts from './components/skill-posts/MyPosts';
 
 import SkillsharePost from './components/skill-posts/SkillsharePost';
 // import CourseManager from './components/courses/CourseList'
@@ -46,6 +47,8 @@ function App() {
         <Route path="/plans" element={<CourseManager />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/comments/:id" element={<Comments />} />
+        <Route path="/posts" element={<SkillsharePost />} />
+        <Route path="/my-posts" element={<MyPosts />} />
 
 
 

@@ -100,6 +100,12 @@ const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Title Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white rounded-t-xl mb-6">
+        <h1 className="text-2xl font-bold">Your Learning Journey</h1>
+        <p className="mt-2 opacity-90">Track and manage your learning progress updates</p>
+      </div>
+
       {/* Filter and Sort Controls */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

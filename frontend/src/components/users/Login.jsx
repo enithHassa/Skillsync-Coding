@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../../services/userService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import backgroundImage from '../../assets/background-2.jpg';
+import { Code2 } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -15,42 +17,60 @@ export default function Login() {
       const user = await login(email, password);
       localStorage.setItem('user', JSON.stringify(user));
       toast.success('Login successful! Redirecting...');
-      setTimeout(() => navigate('/profile'), 1000); // delay to show toast before redirect
+      setTimeout(() => navigate('/home'), 1000); // delay to show toast before redirect
     } catch (err) {
       toast.error('Login failed. Check your email or password.');
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <form className="bg-white p-6 rounded-lg shadow-md w-96" onSubmit={handleLogin}>
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-        <input
-          className="w-full p-2 mb-3 border rounded"
-          placeholder="Email"
-          onChange={e => setEmail(e.target.value)}
-          required
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ 
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundBlendMode: 'overlay'
+      }}
+    >
+      <h1 className="text-6xl font-bold mb-8 -mt-20 flex items-center">
+        <span className="text-blue-800">Skill</span>
+        <span className="text-gray-700">Sync</span>
+        <Code2 
+          className="mx-1 text-gray-600 transform translate-y-3" 
+          size={48} 
         />
-        <input
-          className="w-full p-2 mb-3 border rounded"
-          placeholder="Password"
-          type="password"
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Login
-        </button>
-        <p className="text-sm text-center mt-4">
-          Create account?{' '}
-          <Link to="/signup" className="text-blue-600 hover:underline">
-            Signup
-          </Link>
-        </p>
-      </form>
+      </h1>
+      <div className="bg-white p-8 rounded-lg shadow-xl w-96 backdrop-blur-sm bg-opacity-90">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="email"
+            placeholder="Email"
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            type="password"
+            placeholder="Password"
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Login
+          </button>
+          <p className="text-sm text-center mt-4">
+            Create account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:underline">
+              Signup
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
