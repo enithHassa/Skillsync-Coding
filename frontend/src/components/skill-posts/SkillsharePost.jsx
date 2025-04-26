@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
-import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, MessageCircle, Heart, User } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Comments from '../interactivity/Comments';
 
@@ -291,6 +291,18 @@ export default function SkillsharePost() {
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Navbar />
       <div className="max-w-5xl mx-auto mt-10 px-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Posts</h2>
+          <button
+            onClick={() => navigate('/my-posts')}
+            className="p-2 text-gray-600 hover:text-green-600 transition-colors flex items-center gap-2 rounded-lg hover:bg-green-50"
+            title="My Posts"
+          >
+            <User size={24} />
+            <span className="text-sm font-medium">My Posts</span>
+          </button>
+        </div>
+
         <div className="fixed right-6 bottom-6 z-50">
           <button
             onClick={() => setIsModalOpen(true)}

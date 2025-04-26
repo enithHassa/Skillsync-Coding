@@ -12,6 +12,7 @@ import SkillsharePost from './components/skill-posts/SkillsharePost';
 import CourseManager from './components/courses/CourseList';
 import ProgressPage from './components/learning-progress/pages/ProgressPage';
 import Comments from './components/interactivity/Comments';
+import MyPosts from './components/skill-posts/MyPosts';
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
         <Route path="/plans" element={<CourseManager />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/comments/:id" element={<Comments />} />
+        <Route path="/posts" element={<SkillsharePost />} />
+        <Route path="/my-posts" element={<MyPosts />} />
 
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/home" replace />} />
