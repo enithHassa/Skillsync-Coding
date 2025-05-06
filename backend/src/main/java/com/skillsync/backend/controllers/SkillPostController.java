@@ -95,30 +95,6 @@ public class SkillPostController {
         }).collect(Collectors.toList());
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getPostsByUserId(@PathVariable String userId) {
-        List<SkillPost> userPosts = postRepository.findByUserId(userId);
-        List<Map<String, Object>> postsWithUserInfo = userPosts.stream().map(post -> {
-            Map<String, Object> postWithUser = new HashMap<>();
-            postWithUser.put("id", post.getId());
-            postWithUser.put("description", post.getDescription());
-            postWithUser.put("userId", post.getUserId());
-            postWithUser.put("mediaUrls", post.getMediaUrls());
-            postWithUser.put("createdAt", post.getCreatedAt());
-            postWithUser.put("isVideo", post.isVideo());
-            
-            try {
-                User user = userService.getUserById(post.getUserId());
-                postWithUser.put("userName", user.getFirstName() + " " + user.getLastName());
-            } catch (Exception e) {
-                postWithUser.put("userName", "Unknown User");
-            }
-            
-            return postWithUser;
-        }).collect(Collectors.toList());
-        return ResponseEntity.ok(postsWithUserInfo);
-    }
-
     // 🛠️ Update a post
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePost(

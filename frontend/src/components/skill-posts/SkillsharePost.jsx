@@ -2,48 +2,22 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
-import { PlusCircle, Pencil, Trash2, MessageCircle, Heart, User } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, MessageCircle, Heart } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import Comments from '../interactivity/Comments';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [videoPreview, setVideoPreview] = useState(null);
-  const [isVideo, setIsVideo] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [description, setDescription] = useState('');
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [expandedImage, setExpandedImage] = useState(null);
-  const [visibleComments, setVisibleComments] = useState(new Set());
-  const [commentCounts, setCommentCounts] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [likes, setLikes] = useState(() => {
-    try {
-      const savedLikes = localStorage.getItem('postLikes');
-      return savedLikes ? JSON.parse(savedLikes) : {};
-    } catch (err) {
-      console.error('Error loading likes from localStorage:', err);
-      return {};
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('postLikes', JSON.stringify(likes));
-    } catch (err) {
-      console.error('Error saving likes to localStorage:', err);
-    }
-  }, [likes]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       setCurrentUser(user);
-      fetchPosts();
     } else {
       navigate('/');
     }
@@ -51,74 +25,25 @@ export default function SkillsharePost() {
 
   const userId = currentUser?.id;
 
-  // Reset comment counts when component mounts or posts change
-  useEffect(() => {
-    if (posts.length > 0) {
-      // Clear existing counts first
-      setCommentCounts({});
-      // Fetch fresh counts for all posts
-      posts.forEach(post => fetchCommentCount(post.id));
-    }
-  }, [posts]);
-
-  const fetchCommentCount = async (postId) => {
-    try {
-      const response = await axios.get(`http://localhost:8080/api/comments/post/${postId}`);
-      const comments = response.data;
-      const parentComments = comments.filter(comment => !comment.parentCommentId);
-      
-      setCommentCounts(prev => ({
-        ...prev,
-        [postId]: parentComments.length
-      }));
-    } catch (err) {
-      console.error('Failed to fetch comments for post:', postId, err);
-      // Set count to 0 on error to avoid stale data
-      setCommentCounts(prev => ({
-        ...prev,
-        [postId]: 0
-      }));
-    }
-  };
-
   const fetchPosts = async () => {
-    setIsLoading(true);
-    setError(null);
     try {
       const response = await axios.get('http://localhost:8080/api/posts');
       setPosts(response.data);
     } catch (err) {
-      setError('Failed to fetch posts: ' + (err.response?.data || err.message));
       toast.error('Failed to fetch posts: ' + (err.response?.data || err.message));
-    } finally {
-      setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 3) {
-      toast.error('You can only upload up to 3 images');
-      return;
-    }
-    
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('video/')) {
-        setIsVideo(true);
-        const preview = URL.createObjectURL(file);
-        setVideoPreview(preview);
-        setImagePreviews([preview]);
-      } else {
-        setIsVideo(false);
-        const previews = files.map(file => URL.createObjectURL(file));
-        setImagePreviews(previews);
-        setVideoPreview(null);
-      }
+    const file = e.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
     } else {
-      setImagePreviews(editingPost?.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
-      setIsVideo(editingPost?.isVideo || false);
-      setVideoPreview(editingPost?.isVideo ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
+      setImagePreview(editingPost?.mediaUrls?.[0] ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
     }
   };
 
@@ -133,22 +58,10 @@ export default function SkillsharePost() {
     const formData = new FormData();
     formData.append('userId', currentUser.id);
     formData.append('description', description);
-    formData.append('isVideo', isVideo);
 
     const fileInput = e.target.querySelector('input[type="file"]');
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      if (file.type.startsWith('video/')) {
-        if (file.size > 30 * 1024 * 1024) { // 30MB limit
-          toast.error('Video file size should be less than 30MB');
-          return;
-        }
-        formData.append('media', file);
-      } else {
-        Array.from(fileInput.files).forEach(file => {
-          formData.append('media', file);
-        });
-      }
+    if (fileInput.files[0]) {
+      formData.append('media', fileInput.files[0]);
     }
 
     try {
@@ -169,8 +82,7 @@ export default function SkillsharePost() {
       }
 
       setDescription('');
-      setImagePreviews([]);
-      setIsVideo(false);
+      setImagePreview(null);
       fileInput.value = '';
       setEditingPost(null);
       fetchPosts();
@@ -190,8 +102,7 @@ export default function SkillsharePost() {
     }
     setEditingPost(post);
     setDescription(post.description);
-    setImagePreviews(post.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
-    setIsVideo(post.isVideo);
+    setImagePreview(post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null);
     setIsModalOpen(true);
   };
 
@@ -209,54 +120,20 @@ export default function SkillsharePost() {
     }
   };
 
-  const handleLike = (postId) => {
+  const handleLike = async (postId, isLiked) => {
     if (!currentUser) {
       toast.error('Please log in to like posts');
       navigate('/');
       return;
     }
-
-    setLikes(prevLikes => {
-      const postLikes = prevLikes[postId] || { count: 0, users: [] };
-      const userIndex = postLikes.users.indexOf(currentUser.id);
-      
-      if (userIndex === -1) {
-        return {
-          ...prevLikes,
-          [postId]: {
-            count: postLikes.count + 1,
-            users: [...postLikes.users, currentUser.id]
-          }
-        };
-      } else {
-        const updatedUsers = [...postLikes.users];
-        updatedUsers.splice(userIndex, 1);
-        return {
-          ...prevLikes,
-          [postId]: {
-            count: postLikes.count - 1,
-            users: updatedUsers
-          }
-        };
-      }
-    });
-  };
-
-  const isPostLikedByUser = (postId) => {
     try {
-      return likes[postId]?.users.includes(currentUser?.id);
+      await axios.post(
+        `http://localhost:8080/api/posts/${postId}/like`,
+        { userId: currentUser.id, action: isLiked ? 'unlike' : 'like' }
+      );
+      fetchPosts();
     } catch (err) {
-      console.error('Error checking like status:', err);
-      return false;
-    }
-  };
-
-  const getLikeCount = (postId) => {
-    try {
-      return likes[postId]?.count || 0;
-    } catch (err) {
-      console.error('Error getting like count:', err);
-      return 0;
+      toast.error('Failed to update like: ' + (err.response?.data || err.message));
     }
   };
 
@@ -264,22 +141,7 @@ export default function SkillsharePost() {
     setIsModalOpen(false);
     setEditingPost(null);
     setDescription('');
-    setImagePreviews([]);
-    setIsVideo(false);
-  };
-
-  const toggleComments = async (postId) => {
-    setVisibleComments(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-    // Always fetch fresh count when toggling
-    await fetchCommentCount(postId);
+    setImagePreview(null);
   };
 
   if (!currentUser) {
@@ -290,19 +152,7 @@ export default function SkillsharePost() {
     <>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <Navbar />
-      <div className="max-w-5xl mx-auto mt-10 px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Posts</h2>
-          <button
-            onClick={() => navigate('/my-posts')}
-            className="p-2 text-gray-600 hover:text-green-600 transition-colors flex items-center gap-2 rounded-lg hover:bg-green-50"
-            title="My Posts"
-          >
-            <User size={24} />
-            <span className="text-sm font-medium">My Posts</span>
-          </button>
-        </div>
-
+      <div className="max-w-4xl mx-auto mt-10 px-4">
         <div className="fixed right-6 bottom-6 z-50">
           <button
             onClick={() => setIsModalOpen(true)}
@@ -328,40 +178,19 @@ export default function SkillsharePost() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-semibold">Upload Images (max 3) or Video (max 30MB)</label>
+                  <label className="block mb-1 font-semibold">Upload Image</label>
                   <input
                     type="file"
-                    accept="image/*,video/mp4,video/quicktime"
-                    multiple={!isVideo}
+                    accept="image/*"
                     onChange={handleImageChange}
                     className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
-                  {imagePreviews.length > 0 && !isVideo && (
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {imagePreviews.map((preview, index) => (
-                        <img
-                          key={index}
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-md"
-                        />
-                      ))}
-                    </div>
-                  )}
-                  {isVideo && videoPreview && (
-                    <div className="mt-3">
-                      <video
-                        src={videoPreview}
-                        controls
-                        className="w-full h-48 object-cover rounded-md"
-                        preload="metadata"
-                        playsInline
-                        controlsList="nodownload"
-                      >
-                        <source src={videoPreview} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="mt-3 w-full h-48 object-cover rounded-md"
+                    />
                   )}
                 </div>
 
@@ -399,31 +228,17 @@ export default function SkillsharePost() {
 
         <div>
           <h2 className="text-2xl font-bold mb-6 text-center">Posts</h2>
-          {isLoading ? (
-            <div className="text-center py-10">
-              <p className="text-gray-500">Loading posts...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-10">
-              <p className="text-red-500">{error}</p>
-              <button 
-                onClick={fetchPosts}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Try Again
-              </button>
-            </div>
-          ) : posts.length === 0 ? (
+          {posts.length === 0 ? (
             <p className="text-center text-gray-500">No posts available.</p>
           ) : (
             <div className="space-y-6">
               {posts.map((post) => {
-                const isLiked = isPostLikedByUser(post.id);
+                const isLiked = post.likes?.includes(currentUser.id);
                 const isOwnPost = post.userId === currentUser.id;
                 return (
                   <div
                     key={post.id}
-                    className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto"
+                    className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-md mx-auto"
                   >
                     <div className="flex justify-between items-center mb-2">
                       <p className="text-sm text-gray-500">
@@ -438,90 +253,26 @@ export default function SkillsharePost() {
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>
                     {post.mediaUrls && post.mediaUrls.length > 0 && (
                       <div className="mb-3">
-                        {post.isVideo ? (
-                          <div className="relative w-full">
-                            <video
-                              key={`video-${post.id}`}
-                              className="w-full h-96 object-contain rounded-lg shadow-md bg-black"
-                              controls
-                              preload="metadata"
-                              playsInline
-                              controlsList="nodownload"
-                            >
-                              <source 
-                                src={`http://localhost:8080${post.mediaUrls[0]}`} 
-                                type="video/mp4"
-                              />
-                              Your browser does not support the video tag.
-                            </video>
-                          </div>
-                        ) : post.mediaUrls.length === 1 ? (
-                          <img
-                            src={`http://localhost:8080${post.mediaUrls[0]}`}
-                            alt="Post media"
-                            className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setExpandedImage(`http://localhost:8080${post.mediaUrls[0]}`)}
-                          />
-                        ) : post.mediaUrls.length === 2 ? (
-                          <div className="grid grid-cols-2 gap-2">
-                            {post.mediaUrls.map((url, index) => (
-                              <img
-                                key={index}
-                                src={`http://localhost:8080${url}`}
-                                alt={`Post media ${index + 1}`}
-                                className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 gap-2">
-                            {post.mediaUrls.map((url, index) => (
-                              <div
-                                key={index}
-                                className={`${
-                                  index === 0 && post.mediaUrls.length === 3
-                                    ? 'row-span-2'
-                                    : ''
-                                }`}
-                              >
-                                <img
-                                  src={`http://localhost:8080${url}`}
-                                  alt={`Post media ${index + 1}`}
-                                  className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                                  onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <img
+                          src={`http://localhost:8080${post.mediaUrls[0]}`}
+                          alt="Post media"
+                          className="w-full aspect-square object-cover rounded-md"
+                        />
                       </div>
                     )}
 
                     <div className="flex justify-between items-center text-sm text-gray-500 border-t pt-2">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleLike(post.id)}
-                          className={`flex items-center gap-1 ${
-                            isPostLikedByUser(post.id) ? 'text-red-600' : 'text-gray-500 hover:text-red-600'
-                          }`}
+                          onClick={() => handleLike(post.id, isLiked)}
+                          className={`flex items-center gap-1 ${isLiked ? 'text-red-600' : 'text-gray-500 hover:text-red-600'}`}
                         >
-                          <Heart
-                            size={18}
-                            fill={isPostLikedByUser(post.id) ? 'currentColor' : 'none'}
-                          />
-                          <span>{getLikeCount(post.id)}</span>
+                          <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                          <span>{post.likes?.length || 0}</span>
                         </button>
-                        <button
-                          onClick={() => toggleComments(post.id)}
-                          className={`flex items-center gap-1 ${
-                            visibleComments.has(post.id) 
-                              ? 'text-green-600' 
-                              : 'text-gray-500 hover:text-green-600'
-                          }`}
-                        >
+                        <button className="flex items-center gap-1 text-gray-500 hover:text-green-600">
                           <MessageCircle size={18} />
-                          <span>{commentCounts[post.id] || 0}</span>
+                          <span>0</span>
                         </button>
                       </div>
                       {isOwnPost && (
@@ -541,22 +292,6 @@ export default function SkillsharePost() {
                         </div>
                       )}
                     </div>
-
-                    {visibleComments.has(post.id) && (
-                      <div className="mt-4 border-t pt-4">
-                        <Comments
-                          postId={post.id}
-                          currentUserId={userId}
-                          postOwnerId={post.userId}
-                          onCommentAdded={async () => {
-                            await fetchCommentCount(post.id);
-                          }}
-                          onCommentDeleted={async () => {
-                            await fetchCommentCount(post.id);
-                          }}
-                        />
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -564,27 +299,6 @@ export default function SkillsharePost() {
           )}
         </div>
       </div>
-
-      {expandedImage && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={() => setExpandedImage(null)}
-        >
-          <div className="relative max-w-4xl w-full mx-4">
-            <button
-              onClick={() => setExpandedImage(null)}
-              className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300"
-            >
-              ✕
-            </button>
-            <img
-              src={expandedImage}
-              alt="Expanded view"
-              className="max-h-[90vh] w-auto mx-auto"
-            />
-          </div>
-        </div>
-      )}
     </>
   );
 }
