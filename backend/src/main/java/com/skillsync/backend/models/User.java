@@ -15,9 +15,23 @@ public class User {
     private String id;
     private String firstName;
     private String lastName;
+    private String displayName;
+    private String profileImage;
     private int age;
     private String address;
     private String phoneNumber;
     private String email;
     private String password;
+
+    public String getDisplayName() {
+        if (displayName != null && !displayName.isEmpty()) {
+            return displayName;
+        }
+        return firstName + " " + lastName;
+    }
+
+    public String getProfileImage() {
+        return profileImage != null ? profileImage : "";
+    }
 }
+
