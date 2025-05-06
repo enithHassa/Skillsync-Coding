@@ -18,7 +18,7 @@ export default function Home() {
       icon: <Book className="w-12 h-12 text-blue-500" />,
       title: 'Learning Plans',
       description: 'Create and follow structured learning paths',
-      path: '/plans'
+      path: '/courses'
     },
     {
       icon: <LineChart className="w-12 h-12 text-blue-500" />,

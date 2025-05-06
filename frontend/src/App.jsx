@@ -42,7 +42,6 @@ function App() {
         <Route path="/my-posts" element={<MyPosts />} />
 
         <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/comments/:id" element={<Comments />} />
 
 
         {/* <Route path="/plans" element={<CoursePage />} /> */}
