@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 export default function GoogleAuth() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export default function GoogleAuth() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         toast.success('Successfully logged in with Google!');
-        navigate('/home');
+        setTimeout(() => navigate('/home'), 1000);
       } else {
         console.error('No token in response:', response.data); // Debug log
         toast.error('Login failed: No token received');
@@ -43,14 +43,15 @@ export default function GoogleAuth() {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="w-full">
       <GoogleLogin
         onSuccess={handleGoogleSuccess}
         onError={handleGoogleError}
         useOneTap
-        theme="filled_blue"
+        theme="outline"
         text="continue_with"
         shape="rectangular"
+        width="100%"
       />
     </div>
   );
