@@ -8,11 +8,17 @@ import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
 import Home from './components/main-main/Home';
-import SkillsharePost from './components/skill-posts/SkillsharePost';
+
 import CourseManager from './components/courses/CourseList';
-import ProgressPage from './components/learning-progress/pages/ProgressPage';
+
 import Comments from './components/interactivity/Comments';
 import MyPosts from './components/skill-posts/MyPosts';
+
+import SkillsharePost from './components/skill-posts/SkillsharePost';
+import ProgressPage from './components/learning-progress/pages/ProgressPage';
+
+import CoursePage from './components/courses/CoursePage';
+
 
 function App() {
   return (
@@ -35,8 +41,18 @@ function App() {
         <Route path="/posts" element={<SkillsharePost />} />
         <Route path="/my-posts" element={<MyPosts />} />
 
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/comments/:id" element={<Comments />} />
+
+
+        {/* <Route path="/plans" element={<CoursePage />} /> */}
+        <Route path="/courses" element={<CoursePage />} />
+        
+
+
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/home" replace />} />
+
       </Routes>
     </Router>
   );
