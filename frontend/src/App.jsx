@@ -8,6 +8,12 @@ import Logout from './components/users/Logout';
 import EditProfile from './components/users/EditProfile';
 import Signup from './components/users/Signup';
 import Home from './components/main-main/Home';
+import SkillsharePost from './components/skill-posts/SkillsharePost';
+import CourseManager from './components/courses/CourseList';
+import Comments from './components/interactivity/Comments';
+import MyPosts from './components/skill-posts/MyPosts';
+import ProgressPage from './components/learning-progress/pages/ProgressPage';
+import CoursePage from './components/courses/CoursePage';
 
 import CourseManager from './components/courses/CourseList';
 
@@ -35,6 +41,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/update" element={<EditProfile />} />
         <Route path="/s" element={<SkillsharePost />} />
+<<<<<<< HEAD
         <Route path="/plans" element={<CourseManager />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="/comments/:id" element={<Comments />} />
@@ -52,6 +59,17 @@ function App() {
         {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/home" replace />} />
 
+=======
+        <Route path="/posts" element={<SkillsharePost />} />
+        <Route path="/my-posts" element={<MyPosts />} />
+        <Route path="/plans" element={<CourseManager />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/courses" element={<CoursePage />} />
+        <Route path="/comments/:id" element={<Comments />} />
+
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
+>>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
       </Routes>
     </Router>
   );
