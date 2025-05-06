@@ -12,25 +12,13 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.8.4",
-<<<<<<< HEAD
     "date-fns": "^4.1.0",
-=======
-
-    "date-fns": "^4.1.0",
-
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
     "jiti": "^2.4.2",
     "lucide-react": "^0.488.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
-<<<<<<< HEAD
     "react-router-dom": "^7.5.3",
-=======
-
-    "react-router-dom": "^7.5.3",
-
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
     "react-toastify": "^11.0.5"
   },
   "devDependencies": {

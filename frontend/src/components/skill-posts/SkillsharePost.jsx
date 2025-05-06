@@ -51,18 +51,12 @@ export default function SkillsharePost() {
 
   const userId = currentUser?.id;
 
-<<<<<<< HEAD
   // Reset comment counts when component mounts or posts change
   useEffect(() => {
     if (posts.length > 0) {
       // Clear existing counts first
       setCommentCounts({});
       // Fetch fresh counts for all posts
-=======
-  useEffect(() => {
-    if (posts.length > 0) {
-      setCommentCounts({});
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
       posts.forEach(post => fetchCommentCount(post.id));
     }
   }, [posts]);
@@ -72,20 +66,14 @@ export default function SkillsharePost() {
       const response = await axios.get(`http://localhost:8080/api/comments/post/${postId}`);
       const comments = response.data;
       const parentComments = comments.filter(comment => !comment.parentCommentId);
-<<<<<<< HEAD
       
-=======
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
       setCommentCounts(prev => ({
         ...prev,
         [postId]: parentComments.length
       }));
     } catch (err) {
       console.error('Failed to fetch comments for post:', postId, err);
-<<<<<<< HEAD
       // Set count to 0 on error to avoid stale data
-=======
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
       setCommentCounts(prev => ({
         ...prev,
         [postId]: 0
@@ -113,21 +101,10 @@ export default function SkillsharePost() {
       toast.error('You can only upload up to 3 images');
       return;
     }
-<<<<<<< HEAD
     
     if (files.length > 0) {
       const file = files[0];
       if (file.type.startsWith('video/')) {
-=======
-
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('video/')) {
-        if (file.size > 30 * 1024 * 1024) {
-          toast.error('Video file size should be less than 30MB');
-          return;
-        }
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
         setIsVideo(true);
         const preview = URL.createObjectURL(file);
         setVideoPreview(preview);
@@ -138,22 +115,10 @@ export default function SkillsharePost() {
         setImagePreviews(previews);
         setVideoPreview(null);
       }
-<<<<<<< HEAD
     } else {
       setImagePreviews(editingPost?.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
       setIsVideo(editingPost?.isVideo || false);
       setVideoPreview(editingPost?.isVideo ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
-=======
-    } else if (editingPost?.mediaUrls?.length > 0) {
-      const mediaUrls = editingPost.mediaUrls.map(url => `http://localhost:8080${url}`);
-      setImagePreviews(mediaUrls);
-      setIsVideo(editingPost?.isVideo || false);
-      setVideoPreview(editingPost?.isVideo ? mediaUrls[0] : null);
-    } else {
-      setImagePreviews([]);
-      setIsVideo(false);
-      setVideoPreview(null);
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
     }
   };
 
@@ -174,11 +139,7 @@ export default function SkillsharePost() {
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       if (file.type.startsWith('video/')) {
-<<<<<<< HEAD
         if (file.size > 30 * 1024 * 1024) { // 30MB limit
-=======
-        if (file.size > 30 * 1024 * 1024) {
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
           toast.error('Video file size should be less than 30MB');
           return;
         }
@@ -193,22 +154,22 @@ export default function SkillsharePost() {
     try {
       if (editingPost) {
         await axios.put(`http://localhost:8080/api/posts/${editingPost.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
         toast.success('Post updated successfully!');
       } else {
         await axios.post('http://localhost:8080/api/posts', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
         toast.success('Post created successfully!');
       }
 
       setDescription('');
       setImagePreviews([]);
-<<<<<<< HEAD
-=======
-      setVideoPreview(null);
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
       setIsVideo(false);
       fileInput.value = '';
       setEditingPost(null);
@@ -230,12 +191,7 @@ export default function SkillsharePost() {
     setEditingPost(post);
     setDescription(post.description);
     setImagePreviews(post.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
-<<<<<<< HEAD
     setIsVideo(post.isVideo);
-=======
-    setIsVideo(post?.isVideo || false);
-    setVideoPreview(post?.isVideo && post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null);
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
     setIsModalOpen(true);
   };
 
@@ -263,11 +219,7 @@ export default function SkillsharePost() {
     setLikes(prevLikes => {
       const postLikes = prevLikes[postId] || { count: 0, users: [] };
       const userIndex = postLikes.users.indexOf(currentUser.id);
-<<<<<<< HEAD
       
-=======
-
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
       if (userIndex === -1) {
         return {
           ...prevLikes,
@@ -313,10 +265,6 @@ export default function SkillsharePost() {
     setEditingPost(null);
     setDescription('');
     setImagePreviews([]);
-<<<<<<< HEAD
-=======
-    setVideoPreview(null);
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
     setIsVideo(false);
   };
 
@@ -330,10 +278,7 @@ export default function SkillsharePost() {
       }
       return newSet;
     });
-<<<<<<< HEAD
     // Always fetch fresh count when toggling
-=======
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
     await fetchCommentCount(postId);
   };
 
@@ -399,10 +344,6 @@ export default function SkillsharePost() {
                           src={preview}
                           alt={`Preview ${index + 1}`}
                           className="w-full h-32 object-cover rounded-md"
-<<<<<<< HEAD
-=======
-                          onError={(e) => (e.target.src = '/fallback-image.png')}
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                         />
                       ))}
                     </div>
@@ -457,10 +398,7 @@ export default function SkillsharePost() {
         )}
 
         <div>
-<<<<<<< HEAD
           <h2 className="text-2xl font-bold mb-6 text-center">Posts</h2>
-=======
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
           {isLoading ? (
             <div className="text-center py-10">
               <p className="text-gray-500">Loading posts...</p>
@@ -468,11 +406,7 @@ export default function SkillsharePost() {
           ) : error ? (
             <div className="text-center py-10">
               <p className="text-red-500">{error}</p>
-<<<<<<< HEAD
               <button 
-=======
-              <button
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                 onClick={fetchPosts}
                 className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
@@ -508,23 +442,14 @@ export default function SkillsharePost() {
                           <div className="relative w-full">
                             <video
                               key={`video-${post.id}`}
-<<<<<<< HEAD
                               className="w-full h-96 object-contain rounded-lg shadow-md bg-black"
-=======
-                              className="w-full aspect-square object-contain rounded-lg shadow-md bg-black"
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                               controls
                               preload="metadata"
                               playsInline
                               controlsList="nodownload"
                             >
-<<<<<<< HEAD
                               <source 
                                 src={`http://localhost:8080${post.mediaUrls[0]}`} 
-=======
-                              <source
-                                src={`http://localhost:8080${post.mediaUrls[0]}`}
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                                 type="video/mp4"
                               />
                               Your browser does not support the video tag.
@@ -534,14 +459,8 @@ export default function SkillsharePost() {
                           <img
                             src={`http://localhost:8080${post.mediaUrls[0]}`}
                             alt="Post media"
-<<<<<<< HEAD
                             className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                             onClick={() => setExpandedImage(`http://localhost:8080${post.mediaUrls[0]}`)}
-=======
-                            className="w-full aspect-square object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setExpandedImage(`http://localhost:8080${post.mediaUrls[0]}`)}
-                            onError={(e) => (e.target.src = '/fallback-image.png')}
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                           />
                         ) : post.mediaUrls.length === 2 ? (
                           <div className="grid grid-cols-2 gap-2">
@@ -550,14 +469,8 @@ export default function SkillsharePost() {
                                 key={index}
                                 src={`http://localhost:8080${url}`}
                                 alt={`Post media ${index + 1}`}
-<<<<<<< HEAD
                                 className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                                 onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-=======
-                                className="w-full aspect-square object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-                                onError={(e) => (e.target.src = '/fallback-image.png')}
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                               />
                             ))}
                           </div>
@@ -577,10 +490,6 @@ export default function SkillsharePost() {
                                   alt={`Post media ${index + 1}`}
                                   className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
                                   onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-<<<<<<< HEAD
-=======
-                                  onError={(e) => (e.target.src = '/fallback-image.png')}
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                                 />
                               </div>
                             ))}
@@ -606,13 +515,8 @@ export default function SkillsharePost() {
                         <button
                           onClick={() => toggleComments(post.id)}
                           className={`flex items-center gap-1 ${
-<<<<<<< HEAD
                             visibleComments.has(post.id) 
                               ? 'text-green-600' 
-=======
-                            visibleComments.has(post.id)
-                              ? 'text-green-600'
->>>>>>> parent of 87a53327 (Revert "Merge branch 'Testing' into Skill-post-Componenet-Branch")
                               : 'text-gray-500 hover:text-green-600'
                           }`}
                         >
@@ -659,20 +563,6 @@ export default function SkillsharePost() {
             </div>
           )}
         </div>
-
-        {expandedImage && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-            onClick={() => setExpandedImage(null)}
-          >
-            <img
-              src={expandedImage}
-              alt="Expanded post media"
-              className="max-w-[90%] max-h-[90%] object-contain"
-              onError={(e) => (e.target.src = '/fallback-image.png')}
-            />
-          </div>
-        )}
       </div>
 
       {expandedImage && (
