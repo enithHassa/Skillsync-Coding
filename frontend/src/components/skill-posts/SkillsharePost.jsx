@@ -7,15 +7,12 @@ import toast, { Toaster } from 'react-hot-toast';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [videoPreview, setVideoPreview] = useState(null);
-  const [isVideo, setIsVideo] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [description, setDescription] = useState('');
   const [posts, setPosts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [expandedImage, setExpandedImage] = useState(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -42,19 +39,11 @@ export default function SkillsharePost() {
   }, []);
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 3) {
-      toast.error('You can only upload up to 3 images');
-      return;
-    }
-    
-    if (files.length > 0) {
-      const previews = files.map(file => URL.createObjectURL(file));
-      setImagePreviews(previews);
-      setIsVideo(false);
+    const file = e.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
     } else {
-      setImagePreviews(editingPost?.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
-      setIsVideo(false);
+      setImagePreview(editingPost?.mediaUrls?.[0] ? `http://localhost:8080${editingPost.mediaUrls[0]}` : null);
     }
   };
 
@@ -69,13 +58,10 @@ export default function SkillsharePost() {
     const formData = new FormData();
     formData.append('userId', currentUser.id);
     formData.append('description', description);
-    formData.append('isVideo', isVideo);
 
     const fileInput = e.target.querySelector('input[type="file"]');
-    if (fileInput.files.length > 0) {
-      Array.from(fileInput.files).forEach(file => {
-        formData.append('media', file);
-      });
+    if (fileInput.files[0]) {
+      formData.append('media', fileInput.files[0]);
     }
 
     try {
@@ -96,8 +82,7 @@ export default function SkillsharePost() {
       }
 
       setDescription('');
-      setImagePreviews([]);
-      setIsVideo(false);
+      setImagePreview(null);
       fileInput.value = '';
       setEditingPost(null);
       fetchPosts();
@@ -117,8 +102,7 @@ export default function SkillsharePost() {
     }
     setEditingPost(post);
     setDescription(post.description);
-    setImagePreviews(post.mediaUrls?.map(url => `http://localhost:8080${url}`) || []);
-    setIsVideo(post.isVideo);
+    setImagePreview(post.mediaUrls?.[0] ? `http://localhost:8080${post.mediaUrls[0]}` : null);
     setIsModalOpen(true);
   };
 
@@ -157,8 +141,7 @@ export default function SkillsharePost() {
     setIsModalOpen(false);
     setEditingPost(null);
     setDescription('');
-    setImagePreviews([]);
-    setIsVideo(false);
+    setImagePreview(null);
   };
 
   if (!currentUser) {
@@ -195,38 +178,19 @@ export default function SkillsharePost() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block mb-1 font-semibold">Upload Images (max 3) or Video (max 30s)</label>
+                  <label className="block mb-1 font-semibold">Upload Image</label>
                   <input
                     type="file"
-                    accept="image/*,video/mp4,video/quicktime"
-                    multiple
+                    accept="image/*"
                     onChange={handleImageChange}
                     className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
-                  {imagePreviews.length > 0 && !isVideo && (
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {imagePreviews.map((preview, index) => (
-                        <img
-                          key={index}
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-md"
-                        />
-                      ))}
-                    </div>
-                  )}
-                  {isVideo && (
-                    <video
-                      src={imagePreviews[0]}
-                      controls
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
                       className="mt-3 w-full h-48 object-cover rounded-md"
-                      preload="metadata"
-                      playsInline
-                      controlsList="nodownload"
-                    >
-                      <source src={imagePreviews[0]} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                    />
                   )}
                 </div>
 
@@ -289,60 +253,11 @@ export default function SkillsharePost() {
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>
                     {post.mediaUrls && post.mediaUrls.length > 0 && (
                       <div className="mb-3">
-                        {post.isVideo ? (
-                          <div className="relative w-full">
-                            <video
-                              src={`http://localhost:8080${post.mediaUrls[0]}`}
-                              controls
-                              className="w-full h-96 object-cover rounded-lg shadow-md"
-                              preload="metadata"
-                              playsInline
-                              controlsList="nodownload"
-                            >
-                              <source src={`http://localhost:8080${post.mediaUrls[0]}`} type="video/mp4" />
-                              Your browser does not support the video tag.
-                            </video>
-                          </div>
-                        ) : post.mediaUrls.length === 1 ? (
-                          <img
-                            src={`http://localhost:8080${post.mediaUrls[0]}`}
-                            alt="Post media"
-                            className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setExpandedImage(`http://localhost:8080${post.mediaUrls[0]}`)}
-                          />
-                        ) : post.mediaUrls.length === 2 ? (
-                          <div className="grid grid-cols-2 gap-2">
-                            {post.mediaUrls.map((url, index) => (
-                              <img
-                                key={index}
-                                src={`http://localhost:8080${url}`}
-                                alt={`Post media ${index + 1}`}
-                                className="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-2 gap-2">
-                            {post.mediaUrls.map((url, index) => (
-                              <div
-                                key={index}
-                                className={`${
-                                  index === 0 && post.mediaUrls.length === 3
-                                    ? 'row-span-2'
-                                    : ''
-                                }`}
-                              >
-                                <img
-                                  src={`http://localhost:8080${url}`}
-                                  alt={`Post media ${index + 1}`}
-                                  className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-                                  onClick={() => setExpandedImage(`http://localhost:8080${url}`)}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        <img
+                          src={`http://localhost:8080${post.mediaUrls[0]}`}
+                          alt="Post media"
+                          className="w-full aspect-square object-cover rounded-md"
+                        />
                       </div>
                     )}
 
@@ -384,27 +299,6 @@ export default function SkillsharePost() {
           )}
         </div>
       </div>
-
-      {expandedImage && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={() => setExpandedImage(null)}
-        >
-          <div className="relative max-w-4xl w-full mx-4">
-            <button
-              onClick={() => setExpandedImage(null)}
-              className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300"
-            >
-              ✕
-            </button>
-            <img
-              src={expandedImage}
-              alt="Expanded view"
-              className="max-h-[90vh] w-auto mx-auto"
-            />
-          </div>
-        </div>
-      )}
     </>
   );
 }

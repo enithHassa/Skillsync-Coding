@@ -19,7 +19,7 @@ export default function Login() {
       const user = await login(email, password);
       localStorage.setItem('user', JSON.stringify(user));
       toast.success('Login successful! Redirecting...');
-      setTimeout(() => navigate('/home'), 1000);
+      setTimeout(() => navigate('/home'), 1000); // delay to show toast before redirect
     } catch (err) {
       toast.error('Login failed. Check your email or password.');
     }
