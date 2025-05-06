@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,15 @@ public class UserService {
     public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+    public User findByEmail(String email) {
+        List<User> users = userRepository.findAllByEmail(email);
+        if (users.isEmpty()) {
+            return null;
+        }
+        // If multiple users exist, return the most recently created one
+        return users.get(users.size() - 1);
     }
 
     public User createUser(User user) {

@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import backgroundImage from '../../assets/background-2.jpg';
 import { Code2 } from 'lucide-react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import GoogleAuth from './GoogleAuth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -63,10 +65,26 @@ export default function Login() {
           >
             Login
           </button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleOAuthProvider clientId="240003374876-vouemc46ift88d5crhtgmm21nqtio286.apps.googleusercontent.com">
+              <GoogleAuth />
+            </GoogleOAuthProvider>
+          </div>
+
           <p className="text-sm text-center mt-4">
-            Create account?{' '}
+            Don't have an account?{' '}
             <Link to="/signup" className="text-blue-600 hover:underline">
-              Signup
+              Sign up
             </Link>
           </p>
         </form>
