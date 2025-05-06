@@ -2,13 +2,13 @@ package com.skillsync.backend.controllers;
 
 import com.skillsync.backend.models.SkillPost;
 import com.skillsync.backend.repositories.SkillPostRepository;
+import com.skillsync.backend.services.UserService;
+import com.skillsync.backend.models.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.skillsync.backend.controllers.UserController;
-import com.skillsync.backend.services.UserService;
-import com.skillsync.backend.models.User;
 
 import java.io.*;
 import java.nio.file.*;
@@ -28,7 +28,7 @@ public class SkillPostController {
 
     private final String uploadDir = Paths.get("").toAbsolutePath().toString() + "/uploads/";
 
-    // 🆕 Create a new post with media upload
+    // Create a new post with media upload
     @PostMapping
     public ResponseEntity<?> createPost(
         @RequestParam("userId") String userId,
@@ -71,7 +71,7 @@ public class SkillPostController {
         }
     }
 
-    // ✅ Get all posts
+    // Get all posts
     @GetMapping
     public List<Map<String, Object>> getAllPosts() {
         List<SkillPost> posts = postRepository.findAll();
@@ -83,18 +83,19 @@ public class SkillPostController {
             postWithUser.put("mediaUrls", post.getMediaUrls());
             postWithUser.put("createdAt", post.getCreatedAt());
             postWithUser.put("isVideo", post.isVideo());
-            
+
             try {
                 User user = userService.getUserById(post.getUserId());
                 postWithUser.put("userName", user.getFirstName() + " " + user.getLastName());
             } catch (Exception e) {
                 postWithUser.put("userName", "Unknown User");
             }
-            
+
             return postWithUser;
         }).collect(Collectors.toList());
     }
 
+    // Get posts by user ID
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Map<String, Object>>> getPostsByUserId(@PathVariable String userId) {
         List<SkillPost> userPosts = postRepository.findByUserId(userId);
@@ -106,20 +107,21 @@ public class SkillPostController {
             postWithUser.put("mediaUrls", post.getMediaUrls());
             postWithUser.put("createdAt", post.getCreatedAt());
             postWithUser.put("isVideo", post.isVideo());
-            
+
             try {
                 User user = userService.getUserById(post.getUserId());
                 postWithUser.put("userName", user.getFirstName() + " " + user.getLastName());
             } catch (Exception e) {
                 postWithUser.put("userName", "Unknown User");
             }
-            
+
             return postWithUser;
         }).collect(Collectors.toList());
+
         return ResponseEntity.ok(postsWithUserInfo);
     }
 
-    // 🛠️ Update a post
+    // Update a post
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePost(
         @PathVariable("id") String id,
@@ -171,7 +173,7 @@ public class SkillPostController {
         }
     }
 
-    // 🗑️ Delete a post
+    // Delete a post
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable("id") String id) {
         try {
