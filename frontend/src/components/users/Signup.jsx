@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { signup } from '../../services/userService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import backgroundImage from '../../assets/background-1.jpg';
+import { Code2 } from 'lucide-react';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -34,26 +36,97 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <form className="bg-white p-6 rounded-lg shadow-md w-96" onSubmit={handleSignup}>
-        <h2 className="text-2xl font-bold mb-4 text-center">Create Account</h2>
-        <input className="w-full p-2 mb-3 border rounded" name="firstName" placeholder="First Name" onChange={handleChange} required />
-        <input className="w-full p-2 mb-3 border rounded" name="lastName" placeholder="Last Name" onChange={handleChange} required />
-        <input className="w-full p-2 mb-3 border rounded" name="age" type="number" placeholder="Age" onChange={handleChange} required />
-        <input className="w-full p-2 mb-3 border rounded" name="address" placeholder="Address" onChange={handleChange} required />
-        <input className="w-full p-2 mb-3 border rounded" name="phoneNumber" placeholder="Phone Number" onChange={handleChange} required />
-        <input className="w-full p-2 mb-3 border rounded" name="email" type="email" placeholder="Email" onChange={handleChange} required />
-        <input className="w-full p-2 mb-3 border rounded" name="password" type="password" placeholder="Password" onChange={handleChange} required />
-        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
-          Sign Up
-        </button>
-        <p className="text-sm text-center mt-4">
-          Already have an account?{' '}
-          <Link to="/" className="text-blue-600 hover:underline">
-            Login
-          </Link>
-        </p>
-      </form>
+    <div 
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ 
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundBlendMode: 'overlay'
+      }}
+    >
+      <h1 className="text-6xl font-bold mb-8 -mt-20 flex items-center">
+        <span className="text-blue-800">Skill</span>
+        <span className="text-gray-700">Sync</span>
+        <Code2 
+          className="mx-1 text-gray-600 transform translate-y-3" 
+          size={48} 
+        />
+      </h1>
+      <div className="bg-white p-8 rounded-lg shadow-xl w-[600px] backdrop-blur-sm bg-opacity-90">
+        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+        <form className="space-y-4" onSubmit={handleSignup}>
+          <div className="grid grid-cols-2 gap-4">
+            <input 
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              name="firstName" 
+              placeholder="First Name" 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              name="lastName" 
+              placeholder="Last Name" 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <input 
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              name="age" 
+              type="number" 
+              placeholder="Age" 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              name="phoneNumber" 
+              placeholder="Phone Number" 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+          <input 
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            name="address" 
+            placeholder="Address" 
+            onChange={handleChange} 
+            required 
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <input 
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              name="email" 
+              type="email" 
+              placeholder="Email" 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+              name="password" 
+              type="password" 
+              placeholder="Password" 
+              onChange={handleChange} 
+              required 
+            />
+          </div>
+          <button 
+            type="submit" 
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          >
+            Sign Up
+          </button>
+          <p className="text-sm text-center mt-4">
+            Already have an account?{' '}
+            <Link to="/" className="text-blue-600 hover:underline">
+              Login
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }
