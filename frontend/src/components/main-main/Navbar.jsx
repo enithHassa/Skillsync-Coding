@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Share2,
@@ -12,12 +12,18 @@ import {
   Search
 } from 'lucide-react';
 import logo from '../../assets/skillsync-logo.png';
+import axios from 'axios';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState({ users: [], posts: [] });
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debounceRef = useRef();
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -32,6 +38,39 @@ export default function Navbar() {
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleSearch = () => setShowSearch(!showSearch);
+
+  useEffect(() => {
+    if (!showSearch) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!searchInput.trim()) {
+      setSearchResults({ users: [], posts: [] });
+      setShowDropdown(false);
+      return;
+    }
+    debounceRef.current = setTimeout(() => {
+      setSearchLoading(true);
+      Promise.all([
+        axios.get(`http://localhost:8080/skillsync/users/search?query=${encodeURIComponent(searchInput.trim())}`),
+        axios.get(`http://localhost:8080/api/posts/search?query=${encodeURIComponent(searchInput.trim())}`)
+      ]).then(([userRes, postRes]) => {
+        setSearchResults({ users: userRes.data, posts: postRes.data });
+        setShowDropdown(true);
+      }).finally(() => setSearchLoading(false));
+    }, 400);
+    return () => clearTimeout(debounceRef.current);
+  }, [searchInput, showSearch]);
+
+  const handleResultClick = (type, item) => {
+    setShowSearch(false);
+    setShowDropdown(false);
+    setSearchInput("");
+    if (type === 'user') {
+      navigate(`/profile/${item.id}`); // You may need to implement this route
+    } else if (type === 'post') {
+      // navigate to post detail if you have it, or just to posts page
+      navigate('/posts');
+    }
+  };
 
   return (
     <div className="relative">
@@ -151,23 +190,69 @@ export default function Navbar() {
 
       {/* Search Input Overlay */}
       {showSearch && (
-        <div className="absolute top-16 left-0 w-full bg-white shadow-lg z-40 border-b border-gray-200">
-          <div className="max-w-3xl mx-auto py-4 px-6">
-            <div className="relative">
+        <div className="absolute top-16 left-0 w-full z-40">
+          <div className="max-w-3xl mx-auto py-4 px-6 relative">
+            <form className="relative">
               <input
                 type="text"
                 placeholder="Search..."
                 className="w-full px-4 py-2 pl-10 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                 autoFocus
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                onFocus={() => setShowDropdown(!!searchInput.trim())}
               />
               <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               <button
+                type="button"
                 onClick={toggleSearch}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X className="w-5 h-5" />
               </button>
-            </div>
+            </form>
+            {/* Dropdown Results */}
+            {showDropdown && (searchInput.trim() || searchLoading) && (
+              <div className="absolute left-0 w-full bg-white border border-gray-200 rounded-b-lg shadow-lg mt-1 z-50 max-h-96 overflow-y-auto">
+                {searchLoading ? (
+                  <div className="p-4 text-gray-500">Searching...</div>
+                ) : (
+                  <>
+                    <div className="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Users</div>
+                    {searchResults.users.length === 0 ? (
+                      <div className="px-4 pb-2 text-gray-400">No users found.</div>
+                    ) : (
+                      searchResults.users.map(user => (
+                        <div
+                          key={user.id}
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer flex items-center gap-2"
+                          onClick={() => handleResultClick('user', user)}
+                        >
+                          <User className="w-5 h-5 text-blue-400" />
+                          <span className="font-medium">{user.firstName} {user.lastName}</span>
+                          <span className="ml-2 text-gray-400 text-xs">{user.email}</span>
+                        </div>
+                      ))
+                    )}
+                    <div className="px-4 pt-3 pb-1 text-xs font-semibold text-gray-500">Posts</div>
+                    {searchResults.posts.length === 0 ? (
+                      <div className="px-4 pb-2 text-gray-400">No posts found.</div>
+                    ) : (
+                      searchResults.posts.map(post => (
+                        <div
+                          key={post.id}
+                          className="px-4 py-2 hover:bg-green-50 cursor-pointer"
+                          onClick={() => handleResultClick('post', post)}
+                        >
+                          <span className="font-medium">{post.description}</span>
+                          <span className="ml-2 text-gray-400 text-xs">By {post.userName}</span>
+                        </div>
+                      ))
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

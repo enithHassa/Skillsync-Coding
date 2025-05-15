@@ -50,4 +50,40 @@ public class UserService {
         }
         userRepository.deleteById(id);
     }
+
+    public void followUser(String userId, String targetUserId) {
+        if (userId.equals(targetUserId)) {
+            throw new RuntimeException("You cannot follow yourself.");
+        }
+        User user = getUserById(userId);
+        User targetUser = getUserById(targetUserId);
+        if (!user.getFollowing().contains(targetUserId)) {
+            user.getFollowing().add(targetUserId);
+        }
+        if (!targetUser.getFollowers().contains(userId)) {
+            targetUser.getFollowers().add(userId);
+        }
+        userRepository.save(user);
+        userRepository.save(targetUser);
+    }
+
+    public void unfollowUser(String userId, String targetUserId) {
+        User user = getUserById(userId);
+        User targetUser = getUserById(targetUserId);
+        user.getFollowing().remove(targetUserId);
+        targetUser.getFollowers().remove(userId);
+        userRepository.save(user);
+        userRepository.save(targetUser);
+    }
+
+    public List<User> searchUsers(String query) {
+        String q = query.trim().toLowerCase();
+        return userRepository.findAll().stream()
+            .filter(u ->
+                u.getFirstName().toLowerCase().contains(q) ||
+                u.getLastName().toLowerCase().contains(q) ||
+                (u.getFirstName() + " " + u.getLastName()).toLowerCase().contains(q)
+            )
+            .toList();
+    }
 }

@@ -18,6 +18,7 @@ import SkillsharePost from './components/skill-posts/SkillsharePost';
 import ProgressPage from './components/learning-progress/pages/ProgressPage';
 
 import CoursePage from './components/courses/CoursePage';
+import SearchResults from './components/main-main/SearchResults';
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
         {/* <Route path="/plans" element={<CoursePage />} /> */}
         <Route path="/courses" element={<CoursePage />} />
         
+        <Route path="/search" element={<SearchResults />} />
 
 
         {/* Redirect any unknown routes to home */}

@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SkillPostRepository extends MongoRepository<SkillPost, String> {
     List<SkillPost> findByUserId(String userId);
+    List<SkillPost> findByDescriptionIgnoreCaseContaining(String description);
 }
