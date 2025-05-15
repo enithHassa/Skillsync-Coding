@@ -19,3 +19,7 @@ export const signup = async (data) => {
 export const getUser = (id) => axios.get(`${API_URL}/${id}`);
 export const updateUser = (id, data) => axios.put(`${API_URL}/update/${id}`, data);
 export const deleteUser = (id) => axios.delete(`${API_URL}/delete/${id}`);
+export const followUser = (userId, targetUserId) => axios.post(`${API_URL}/${userId}/follow/${targetUserId}`);
+export const unfollowUser = (userId, targetUserId) => axios.post(`${API_URL}/${userId}/unfollow/${targetUserId}`);
+export const getFollowers = (userId) => axios.get(`${API_URL}/${userId}/followers`);
+export const getFollowing = (userId) => axios.get(`${API_URL}/${userId}/following`);

@@ -5,6 +5,7 @@ import Navbar from '../main-main/Navbar';
 import { PlusCircle, Pencil, Trash2, MessageCircle, Heart, User } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Comments from '../interactivity/Comments';
+import { followUser, unfollowUser, getFollowing } from '../../services/userService';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export default function SkillsharePost() {
       return {};
     }
   });
+  const [following, setFollowing] = useState([]);
 
   useEffect(() => {
     try {
@@ -44,6 +46,8 @@ export default function SkillsharePost() {
     if (user) {
       setCurrentUser(user);
       fetchPosts();
+      // Fetch following list for current user
+      getFollowing(user.id).then(res => setFollowing(res.data)).catch(() => setFollowing([]));
     } else {
       navigate('/');
     }
@@ -282,6 +286,26 @@ export default function SkillsharePost() {
     await fetchCommentCount(postId);
   };
 
+  // Helper to check if current user is following a given user
+  const isFollowing = (targetUserId) => following.includes(targetUserId);
+
+  // Handle follow/unfollow
+  const handleFollow = async (targetUserId) => {
+    try {
+      if (isFollowing(targetUserId)) {
+        await unfollowUser(currentUser.id, targetUserId);
+        setFollowing(following.filter(id => id !== targetUserId));
+        toast.success('Unfollowed user');
+      } else {
+        await followUser(currentUser.id, targetUserId);
+        setFollowing([...following, targetUserId]);
+        toast.success('Followed user');
+      }
+    } catch (err) {
+      toast.error('Failed to update follow status');
+    }
+  };
+
   if (!currentUser) {
     return null;
   }
@@ -433,6 +457,15 @@ export default function SkillsharePost() {
                         {' '}posted on{' '}
                         {new Date(post.createdAt).toLocaleString()}
                       </p>
+                      {/* Follow/Unfollow Button */}
+                      {!isOwnPost && (
+                        <button
+                          onClick={() => handleFollow(post.userId)}
+                          className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors duration-200 ml-2 ${isFollowing(post.userId) ? 'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200' : 'bg-green-500 text-white border-green-500 hover:bg-green-600'}`}
+                        >
+                          {isFollowing(post.userId) ? 'Following' : 'Follow'}
+                        </button>
+                      )}
                     </div>
 
                     <p className="text-gray-800 mb-3 text-sm">{post.description}</p>

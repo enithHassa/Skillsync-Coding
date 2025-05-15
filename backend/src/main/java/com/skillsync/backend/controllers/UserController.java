@@ -43,4 +43,33 @@ public class UserController {
         return ResponseEntity.ok("Profile deleted");
     }
 
+    @PostMapping("/{userId}/follow/{targetUserId}")
+    public ResponseEntity<String> followUser(@PathVariable String userId, @PathVariable String targetUserId) {
+        userService.followUser(userId, targetUserId);
+        return ResponseEntity.ok("Followed user successfully");
+    }
+
+    @PostMapping("/{userId}/unfollow/{targetUserId}")
+    public ResponseEntity<String> unfollowUser(@PathVariable String userId, @PathVariable String targetUserId) {
+        userService.unfollowUser(userId, targetUserId);
+        return ResponseEntity.ok("Unfollowed user successfully");
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<List<String>> getFollowers(@PathVariable String userId) {
+        User user = userService.getUserById(userId);
+        return ResponseEntity.ok(user.getFollowers());
+    }
+
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<List<String>> getFollowing(@PathVariable String userId) {
+        User user = userService.getUserById(userId);
+        return ResponseEntity.ok(user.getFollowing());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<User>> searchUsers(@RequestParam String query) {
+        return ResponseEntity.ok(userService.searchUsers(query));
+    }
+
 }

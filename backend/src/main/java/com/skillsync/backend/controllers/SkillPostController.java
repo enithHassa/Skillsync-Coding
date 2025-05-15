@@ -200,4 +200,42 @@ public class SkillPostController {
                 .body("Error deleting post: " + e.getMessage());
         }
     }
+
+    @GetMapping("/search")
+    public List<Map<String, Object>> searchPosts(@RequestParam String query) {
+        // Search by description
+        List<SkillPost> postsByDescription = postRepository.findByDescriptionIgnoreCaseContaining(query);
+        // Search by user name
+        List<User> users = userService.searchUsers(query);
+        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+        List<SkillPost> postsByUser = postRepository.findAll().stream()
+            .filter(post -> userIds.contains(post.getUserId()))
+            .collect(Collectors.toList());
+        // Combine and deduplicate
+        Set<String> seen = new HashSet<>();
+        List<SkillPost> allPosts = new ArrayList<>();
+        for (SkillPost p : postsByDescription) {
+            if (seen.add(p.getId())) allPosts.add(p);
+        }
+        for (SkillPost p : postsByUser) {
+            if (seen.add(p.getId())) allPosts.add(p);
+        }
+        // Map to response format
+        return allPosts.stream().map(post -> {
+            Map<String, Object> postWithUser = new HashMap<>();
+            postWithUser.put("id", post.getId());
+            postWithUser.put("description", post.getDescription());
+            postWithUser.put("userId", post.getUserId());
+            postWithUser.put("mediaUrls", post.getMediaUrls());
+            postWithUser.put("createdAt", post.getCreatedAt());
+            postWithUser.put("isVideo", post.isVideo());
+            try {
+                User user = userService.getUserById(post.getUserId());
+                postWithUser.put("userName", user.getFirstName() + " " + user.getLastName());
+            } catch (Exception e) {
+                postWithUser.put("userName", "Unknown User");
+            }
+            return postWithUser;
+        }).collect(Collectors.toList());
+    }
 }

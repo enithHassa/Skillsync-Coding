@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +24,8 @@ public class User {
     private String phoneNumber;
     private String email;
     private String password;
+    private List<String> followers = new ArrayList<>();
+    private List<String> following = new ArrayList<>();
 
     public String getDisplayName() {
         if (displayName != null && !displayName.isEmpty()) {
