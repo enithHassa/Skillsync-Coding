@@ -67,7 +67,7 @@ export default function EditProfile() {
     <>
       <Navbar />
       <div className="flex justify-center mt-10">
-        <div className="bg-white p-10 rounded-lg shadow-lg w-[500px]">
+        <div className="bg-white p-10 rounded-lg shadow-lg w-[700px]">
           {/* Profile Icon */}
           <div className="flex flex-col items-center mb-8">
             <div className={`w-40 h-40 bg-gradient-to-r ${colorOptions[iconColor]} rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 mb-4`}>
@@ -89,78 +89,78 @@ export default function EditProfile() {
           <h2 className="text-3xl font-bold mb-8 text-center">Edit Profile</h2>
           
           <form onSubmit={handleUpdate} className="space-y-5">
-            <div>
-              <label className="text-sm text-gray-500">First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                value={form.firstName}
-                onChange={handleChange}
-                className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={form.firstName}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  required
+                />
+              </div>
             </div>
-
-            <div>
-              <label className="text-sm text-gray-500">Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-                className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Age</label>
+                <input
+                  type="number"
+                  name="age"
+                  value={form.age}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Phone Number</label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={form.phoneNumber}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  required
+                />
+              </div>
             </div>
-
-            <div>
-              <label className="text-sm text-gray-500">Age</label>
-              <input
-                type="number"
-                name="age"
-                value={form.age}
-                onChange={handleChange}
-                className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-gray-500">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  required
+                />
+              </div>
             </div>
-
-            <div>
-              <label className="text-sm text-gray-500">Address</label>
-              <input
-                type="text"
-                name="address"
-                value={form.address}
-                onChange={handleChange}
-                className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-500">Phone Number</label>
-              <input
-                type="text"
-                name="phoneNumber"
-                value={form.phoneNumber}
-                onChange={handleChange}
-                className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-gray-500">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full mt-1 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-                required
-              />
-            </div>
-
             <div>
               <label className="text-sm text-gray-500">Password</label>
               <input
@@ -172,7 +172,6 @@ export default function EditProfile() {
                 required
               />
             </div>
-
             <div className="flex gap-4 mt-6">
               <button 
                 type="submit" 
