@@ -10,10 +10,13 @@ import {
   X,
   Home,
   Search,
-  Code2
+  Code2,
+  Bell
 } from 'lucide-react';
 import logo from '../../assets/skillsync-logo.png';
 import axios from 'axios';
+import NotificationSidebar from './NotificationSidebar';
+import { useNotifications } from './NotificationContext';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -25,6 +28,7 @@ export default function Navbar() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef();
+  const { unreadCount, setSidebarOpen: setNotifSidebarOpen, sidebarOpen: notifSidebarOpen } = useNotifications();
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -81,13 +85,17 @@ export default function Navbar() {
           <div className="flex items-center h-16 px-6">
             {/* Left: Logo & SkillSync */}
             <div className="flex items-center space-x-4">
-              <div className="flex items-center gap-2 cursor-pointer" onClick={navigateToHome}>
+              <div className="flex items-center gap-2">
                 <img
                   src={logo}
                   alt="SkillSync Logo"
-                  className="h-12.5 w-12.5 rounded-full bg-white p-1 shadow-md border border-gray-200 hover:opacity-80 transition-opacity"
+                  className="h-12.5 w-12.5 rounded-full bg-white p-1 shadow-md border border-gray-200 hover:opacity-80 transition-opacity cursor-pointer"
+                  onClick={() => setSidebarOpen(true)}
                 />
-                <span className="flex items-center text-2xl font-bold">
+                <span
+                  className="flex items-center text-2xl font-bold cursor-pointer select-none"
+                  onClick={navigateToHome}
+                >
                   <span className="text-blue-800">Skill</span>
                   <span className="text-gray-800">Sync</span>
                   <Code2 className="ml-1 text-gray-600" size={28} />
@@ -150,7 +158,26 @@ export default function Navbar() {
             </div>
 
             {/* Right: Profile dropdown */}
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              {/* Notification Bell */}
+              <div className="relative group">
+                <button
+                  onClick={() => setNotifSidebarOpen(true)}
+                  className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-7 h-7 text-gray-700 group-hover:text-blue-700 transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold shadow">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <span className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 px-3 py-1 text-sm text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
+                  Notifications
+                </span>
+              </div>
+              {/* Profile Icon */}
               <button 
                 onClick={toggleDropdown}
                 className="p-2 rounded-full hover:bg-gray-200 transition-colors"
@@ -158,7 +185,7 @@ export default function Navbar() {
                 <UserCircle className="w-7 h-7 text-gray-700 hover:text-blue-700 transition-colors" />
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50" style={{ top: '100%' }}>
                   <div className="py-2">
                     <button
                       onClick={() => navigate('/profile')}
@@ -285,12 +312,15 @@ export default function Navbar() {
           </ul>
           <button
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-            onClick={toggleSidebar}
+            onClick={() => setSidebarOpen(false)}
           >
             <X className="w-6 h-6" />
           </button>
         </div>
       )}
+
+      {/* Notification Sidebar */}
+      <NotificationSidebar />
     </div>
   );
 }

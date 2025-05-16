@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '../main-main/Navbar';
 import { User } from 'lucide-react';
+import { useNotifications } from '../main-main/NotificationContext';
 
 export default function EditProfile() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function EditProfile() {
     iconColor: storedUser.iconColor || 'blue'
   });
   const [iconColor, setIconColor] = useState(storedUser.iconColor || 'blue');
+  const { addNotification } = useNotifications();
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,6 +32,7 @@ export default function EditProfile() {
       const response = await updateUser(storedUser.id, form);
       const updatedUser = { ...response.data, iconColor: form.iconColor };
       localStorage.setItem('user', JSON.stringify(updatedUser));
+      addNotification({ message: 'Profile updated successfully!', type: 'profile', time: new Date().toLocaleString() });
       toast.success('Profile updated successfully!', {
         onClose: () => navigate('/profile')
       });
@@ -46,6 +49,7 @@ export default function EditProfile() {
     try {
       await deleteUser(storedUser.id);
       localStorage.removeItem('user');
+      addNotification({ message: 'Account deleted successfully!', type: 'profile', time: new Date().toLocaleString() });
       toast.success('Account deleted successfully!', {
         onClose: () => navigate('/')
       });

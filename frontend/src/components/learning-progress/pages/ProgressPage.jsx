@@ -10,10 +10,12 @@ import ProgressUpdateForm from '../components/ProgressUpdateForm';
 import Navbar from '../../main-main/Navbar';
 import { toast } from 'react-toastify';
 import { Plus } from 'lucide-react';
+import { useNotifications } from '../../main-main/NotificationContext';
 
 const ProgressPage = () => {
   const [updates, setUpdates] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const { addNotification } = useNotifications();
 
   const load = async () => {
     try {
@@ -27,6 +29,7 @@ const ProgressPage = () => {
   const handleCreate = async (data) => {
     try {
       await createProgressUpdate(data);
+      addNotification({ message: 'New learning progress posted!', type: 'progress', time: new Date().toLocaleString() });
       toast.success("Post created 🎉");
       load();
       setShowForm(false);
@@ -38,6 +41,7 @@ const ProgressPage = () => {
   const handleDelete = async (id) => {
     try {
       await deleteProgressUpdate(id);
+      addNotification({ message: 'Learning progress deleted!', type: 'progress', time: new Date().toLocaleString() });
       toast.success("Post deleted 🗑️");
       load();
     } catch {

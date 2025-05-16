@@ -6,6 +6,7 @@ import { PlusCircle, Pencil, Trash2, MessageCircle, Heart, User } from 'lucide-r
 import toast, { Toaster } from 'react-hot-toast';
 import Comments from '../interactivity/Comments';
 import { followUser, unfollowUser, getFollowing } from '../../services/userService';
+import { useNotifications } from '../main-main/NotificationContext';
 
 export default function SkillsharePost() {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export default function SkillsharePost() {
     }
   });
   const [following, setFollowing] = useState([]);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     try {
@@ -169,6 +171,7 @@ export default function SkillsharePost() {
             'Content-Type': 'multipart/form-data',
           },
         });
+        addNotification({ message: 'New post created!', type: 'post', time: new Date().toLocaleString() });
         toast.success('Post created successfully!');
       }
 
@@ -206,6 +209,7 @@ export default function SkillsharePost() {
     }
     try {
       await axios.delete(`http://localhost:8080/api/posts/${postId}`);
+      addNotification({ message: 'Post deleted!', type: 'post', time: new Date().toLocaleString() });
       toast.success('Post deleted successfully!');
       fetchPosts();
     } catch (err) {

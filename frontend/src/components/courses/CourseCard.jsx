@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
 import { Pencil, Trash2, ArrowUpRight } from "lucide-react"; // Changed icon here
+import { useNotifications } from '../main-main/NotificationContext';
 
 const CourseCard = ({ course, onEdit, onDelete }) => {
   const levelBadge = {
@@ -7,6 +8,8 @@ const CourseCard = ({ course, onEdit, onDelete }) => {
     Intermediate: "bg-yellow-100 text-yellow-700",
     Advanced: "bg-red-100 text-red-700",
   };
+
+  const { addNotification } = useNotifications();
 
   const handleEdit = () => {
     toast.info("Editing this learning plan...", {
@@ -23,6 +26,7 @@ const CourseCard = ({ course, onEdit, onDelete }) => {
       autoClose: 2000,
       style: { backgroundColor: "#fee2e2", color: "#991b1b" },
     });
+    addNotification({ message: 'Course deleted!', type: 'course', time: new Date().toLocaleString() });
     onDelete(course.id);
   };
 

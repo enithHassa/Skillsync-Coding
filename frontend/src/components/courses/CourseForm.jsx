@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNotifications } from '../main-main/NotificationContext';
 
 const loggedInUser = JSON.parse(localStorage.getItem("user"));
 
@@ -22,6 +23,7 @@ const CourseForm = ({ onSubmit, selected }) => {
   const [form, setForm] = useState(defaultForm);
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     if (selected) {
@@ -105,6 +107,7 @@ const CourseForm = ({ onSubmit, selected }) => {
           autoClose: 3000,
         });
       } else {
+        addNotification({ message: 'New course posted!', type: 'course', time: new Date().toLocaleString() });
         toast.success("Learning plan added successfully!", {
           position: "top-center",
           autoClose: 3000,
