@@ -45,4 +45,10 @@ public class ProgressUpdateController {
             throw new RuntimeException("Not authorized to delete this update");
         }
     }
+
+    @PutMapping("/{id}/highlight")
+    public ProgressUpdate toggleHighlight(@PathVariable String id, @RequestHeader("X-User-Id") String userId) {
+        return service.toggleHighlight(id, userId)
+                .orElseThrow(() -> new RuntimeException("Update not found or not authorized"));
+    }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; //progress inline form page with filters
+import { toggleHighlight } from '../api/progressUpdateApi';
 
 const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
   const [editId, setEditId] = useState(null);
@@ -77,6 +78,20 @@ const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
       await onDelete(id);
     } catch (err) {
       toast.error("Failed to delete ❌");
+    }
+  };
+
+  const handleToggleHighlight = async (id) => {
+    try {
+      const updatedUpdate = await toggleHighlight(id);
+      // Instead of trying to refresh the list directly, we'll update the local state
+      const updatedUpdates = updates.map(update => 
+        update.id === id ? { ...update, highlighted: !update.highlighted } : update
+      );
+      // Call the parent's onUpdate function to refresh the list
+      onUpdate(id, updatedUpdate);
+    } catch (err) {
+      toast.error("Failed to toggle highlight ❌");
     }
   };
 
@@ -172,7 +187,12 @@ const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
           </div>
         ) : (
           filteredAndSortedUpdates.map(update => (
-            <div key={update.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div 
+              key={update.id} 
+              className={`bg-white rounded-xl shadow-sm overflow-hidden ${
+                update.highlighted ? 'ring-2 ring-yellow-400' : ''
+              }`}
+            >
               {editId === update.id ? (
                 <form className="p-6 space-y-6">
                   <div className="grid grid-cols-1 gap-6">
@@ -270,6 +290,29 @@ const ProgressUpdateList = ({ updates, onDelete, onEdit, onUpdate }) => {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      <button
+                        onClick={() => handleToggleHighlight(update.id)}
+                        className={`p-2 rounded-lg transition duration-200 ${
+                          update.highlighted 
+                            ? 'text-yellow-500 hover:bg-yellow-50' 
+                            : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+                        }`}
+                        title={update.highlighted ? "Remove highlight" : "Highlight this progress"}
+                      >
+                        <svg 
+                          className="w-5 h-5" 
+                          fill={update.highlighted ? "currentColor" : "none"} 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth="2" 
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                          />
+                        </svg>
+                      </button>
                       <button
                         onClick={() => handleEditClick(update)}
                         className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition duration-200"

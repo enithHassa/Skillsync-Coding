@@ -65,3 +65,17 @@ export const deleteProgressUpdate = async (id) => {
     throw new Error('Failed to delete progress update');
   }
 };
+
+export const toggleHighlight = async (id) => {
+  const userId = getCurrentUserId();
+  const res = await fetch(`${BASE_URL}/${id}/highlight`, {
+    method: 'PUT',
+    headers: {
+      'X-User-Id': userId
+    }
+  });
+  if (!res.ok) {
+    throw new Error('Failed to toggle highlight');
+  }
+  return res.json();
+};
