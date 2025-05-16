@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../main-main/Navbar';
-import { PlusCircle, Pencil, Trash2, MessageCircle, Heart, User } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, MessageCircle, Heart, User, Search } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import Comments from '../interactivity/Comments';
 import { followUser, unfollowUser, getFollowing } from '../../services/userService';
@@ -15,6 +15,8 @@ export default function SkillsharePost() {
   const [isVideo, setIsVideo] = useState(false);
   const [description, setDescription] = useState('');
   const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -48,7 +50,6 @@ export default function SkillsharePost() {
     if (user) {
       setCurrentUser(user);
       fetchPosts();
-      // Fetch following list for current user
       getFollowing(user.id).then(res => setFollowing(res.data)).catch(() => setFollowing([]));
     } else {
       navigate('/');
@@ -57,15 +58,25 @@ export default function SkillsharePost() {
 
   const userId = currentUser?.id;
 
-  // Reset comment counts when component mounts or posts change
   useEffect(() => {
     if (posts.length > 0) {
-      // Clear existing counts first
       setCommentCounts({});
-      // Fetch fresh counts for all posts
       posts.forEach(post => fetchCommentCount(post.id));
     }
   }, [posts]);
+
+  // Filter posts based on search term
+  useEffect(() => {
+    const filtered = posts.filter(post => {
+      const userName = post.userName || 
+        (post.userId === currentUser?.id ? 
+          `${currentUser.firstName} ${currentUser.lastName}` : 
+          `User ${post.userId}`);
+      return userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             post.description.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    setFilteredPosts(filtered);
+  }, [posts, searchTerm, currentUser]);
 
   const fetchCommentCount = async (postId) => {
     try {
@@ -79,7 +90,6 @@ export default function SkillsharePost() {
       }));
     } catch (err) {
       console.error('Failed to fetch comments for post:', postId, err);
-      // Set count to 0 on error to avoid stale data
       setCommentCounts(prev => ({
         ...prev,
         [postId]: 0
@@ -145,7 +155,7 @@ export default function SkillsharePost() {
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
       if (file.type.startsWith('video/')) {
-        if (file.size > 30 * 1024 * 1024) { // 30MB limit
+        if (file.size > 30 * 1024 * 1024) {
           toast.error('Video file size should be less than 30MB');
           return;
         }
@@ -286,14 +296,11 @@ export default function SkillsharePost() {
       }
       return newSet;
     });
-    // Always fetch fresh count when toggling
     await fetchCommentCount(postId);
   };
 
-  // Helper to check if current user is following a given user
   const isFollowing = (targetUserId) => following.includes(targetUserId);
 
-  // Handle follow/unfollow
   const handleFollow = async (targetUserId) => {
     try {
       if (isFollowing(targetUserId)) {
@@ -321,14 +328,7 @@ export default function SkillsharePost() {
       <div className="max-w-5xl mx-auto mt-10 px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Posts</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold shadow transition"
-            >
-              <PlusCircle size={20} />
-              <span>Create Post</span>
-            </button>
+
             <button
               onClick={() => navigate('/my-posts')}
               className="p-2 text-gray-600 hover:text-green-600 transition-colors flex items-center gap-2 rounded-lg hover:bg-green-50"
@@ -338,7 +338,6 @@ export default function SkillsharePost() {
               <span className="text-sm font-medium">My Posts</span>
             </button>
           </div>
-        </div>
 
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -440,11 +439,11 @@ export default function SkillsharePost() {
                 Try Again
               </button>
             </div>
-          ) : posts.length === 0 ? (
-            <p className="text-center text-gray-500">No posts available.</p>
+          ) : filteredPosts.length === 0 ? (
+            <p className="text-center text-gray-500">No posts match your search.</p>
           ) : (
             <div className="space-y-6">
-              {posts.map((post) => {
+              {filteredPosts.map((post) => {
                 const isLiked = isPostLikedByUser(post.id);
                 const isOwnPost = post.userId === currentUser.id;
                 return (
@@ -460,7 +459,6 @@ export default function SkillsharePost() {
                         {' '}posted on{' '}
                         {new Date(post.createdAt).toLocaleString()}
                       </p>
-                      {/* Follow/Unfollow Button */}
                       {!isOwnPost && (
                         <button
                           onClick={() => handleFollow(post.userId)}
