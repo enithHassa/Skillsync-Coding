@@ -3,7 +3,7 @@ import { Share2, Book, LineChart, Users, MessageCircle } from 'lucide-react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import logo from '../../assets/skillsync-logo.png';
-import backgroundImage from '../../assets/background-2.jpg';
+import backgroundImage from '../../assets/background-5.jpg';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -11,31 +11,31 @@ export default function Home() {
 
   const features = [
     {
-      icon: <Share2 className="w-12 h-12 text-blue-500" />,
+      icon: <Share2 className="w-12 h-12 text-black-500" />,
       title: 'Skill Posts',
       description: 'Share and discover new skills with the community.',
       path: '/s'
     },
     {
-      icon: <Book className="w-12 h-12 text-blue-500" />,
+      icon: <Book className="w-12 h-12 text-black-500" />,
       title: 'Learning Plans',
       description: 'Create and follow structured learning paths.',
       path: '/courses'
     },
     {
-      icon: <LineChart className="w-12 h-12 text-blue-500" />,
+      icon: <LineChart className="w-12 h-12 text-black-500" />,
       title: 'Learning Progress',
       description: 'Track your learning journey and achievements.',
       path: '/progress'
     },
     {
-      icon: <Users className="w-12 h-12 text-blue-500" />,
+      icon: <Users className="w-12 h-12 text-black-500" />,
       title: 'Community',
       description: 'Follow others, grow your network, and collaborate.',
       path: '/profile'
     },
     {
-      icon: <MessageCircle className="w-12 h-12 text-blue-500" />,
+      icon: <MessageCircle className="w-12 h-12 text-black-500" />,
       title: 'Comments & Feedback',
       description: 'Engage with posts and share your thoughts.',
       path: '/posts'
@@ -91,7 +91,7 @@ export default function Home() {
             <div className="flex-1 mb-8 md:mb-0">
               <h2 className="text-2xl font-bold text-blue-700 mb-4">Connect, Collaborate, and Grow</h2>
               <p className="text-lg text-blue-900 mb-6">SkillSync is more than just a learning platform. It's a thriving community where you can:</p>
-              <ul className="list-disc list-inside text-blue-800 space-y-2">
+              <ul className="list-disc list-inside text-black-800 space-y-2">
                 <li>Follow and connect with other learners</li>
                 <li>Share your progress and celebrate achievements</li>
                 <li>Comment on posts and give feedback</li>

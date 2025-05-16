@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Code2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../../assets/skillsync-logo.png';
 
@@ -40,8 +40,12 @@ export default function Footer() {
           {/* Logo and Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="SkillSync Logo" className="h-8 w-8" />
-              <span className="text-xl font-bold text-blue-600">SkillSync</span>
+              <img src={logo} alt="SkillSync Logo" className="h-12 w-12 rounded-full bg-white p-1 shadow-md border border-gray-200" />
+              <span className="flex items-center text-2xl font-bold">
+                <span className="text-blue-800">Skill</span>
+                <span className="text-gray-800">Sync</span>
+                <Code2 className="ml-1 text-gray-600" size={22} />
+              </span>
             </div>
             <p className="text-gray-700 mb-6">
               Empowering learners to achieve their goals through collaborative skill development

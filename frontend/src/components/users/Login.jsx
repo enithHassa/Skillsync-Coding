@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../../services/userService';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import backgroundImage from '../../assets/background-2.jpg';
+import backgroundImage from '../../assets/background-3.jpg';
 import { Code2 } from 'lucide-react';
 import googleLogo from '../../assets/google-logo.png';
 import githubLogo from '../../assets/github-logo.png';
@@ -30,7 +30,7 @@ export default function Login() {
       className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
       style={{ 
         backgroundImage: `url(${backgroundImage})`,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: 'rgba(255, 255, 255, 0.59)',
         backgroundBlendMode: 'overlay'
       }}
     >

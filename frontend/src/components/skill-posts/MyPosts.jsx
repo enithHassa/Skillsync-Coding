@@ -269,7 +269,7 @@ export default function MyPosts() {
                       }`}
                     >
                       <Heart
-                        size={18}
+                        size={20}
                         fill={isPostLikedByUser(post.id) ? 'currentColor' : 'none'}
                       />
                       <span>{getLikeCount(post.id)}</span>
@@ -278,7 +278,7 @@ export default function MyPosts() {
                       onClick={() => toggleComments(post.id)}
                       className="flex items-center gap-1 text-gray-500 hover:text-green-600"
                     >
-                      <MessageCircle size={18} />
+                      <MessageCircle size={20} />
                       <span>{commentCounts[post.id] || 0}</span>
                     </button>
                   </div>

@@ -9,7 +9,8 @@ import {
   User,
   X,
   Home,
-  Search
+  Search,
+  Code2
 } from 'lucide-react';
 import logo from '../../assets/skillsync-logo.png';
 import axios from 'axios';
@@ -80,18 +81,18 @@ export default function Navbar() {
           <div className="flex items-center h-16 px-6">
             {/* Left: Logo & SkillSync */}
             <div className="flex items-center space-x-4">
-              <img
-                src={logo}
-                alt="SkillSync Logo"
-                className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={toggleSidebar}
-              />
-              <h1
-                className="text-2xl font-bold text-blue-700 cursor-pointer hover:text-blue-800 transition-colors"
-                onClick={navigateToHome}
-              >
-                SkillSync
-              </h1>
+              <div className="flex items-center gap-2 cursor-pointer" onClick={navigateToHome}>
+                <img
+                  src={logo}
+                  alt="SkillSync Logo"
+                  className="h-12.5 w-12.5 rounded-full bg-white p-1 shadow-md border border-gray-200 hover:opacity-80 transition-opacity"
+                />
+                <span className="flex items-center text-2xl font-bold">
+                  <span className="text-blue-800">Skill</span>
+                  <span className="text-gray-800">Sync</span>
+                  <Code2 className="ml-1 text-gray-600" size={28} />
+                </span>
+              </div>
             </div>
 
             {/* Center: Icons */}

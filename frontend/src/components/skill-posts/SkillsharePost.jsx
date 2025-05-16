@@ -422,7 +422,6 @@ export default function SkillsharePost() {
         )}
 
         <div>
-          <h2 className="text-2xl font-bold mb-6 text-center">Posts</h2>
           {isLoading ? (
             <div className="text-center py-10">
               <p className="text-gray-500">Loading posts...</p>
@@ -531,29 +530,29 @@ export default function SkillsharePost() {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center text-sm text-gray-500 border-t pt-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex justify-between items-center text-base text-gray-500 border-t pt-2">
+                      <div className="flex items-center gap-6">
                         <button
                           onClick={() => handleLike(post.id)}
-                          className={`flex items-center gap-1 ${
-                            isPostLikedByUser(post.id) ? 'text-red-600' : 'text-gray-500 hover:text-red-600'
+                          className={`flex items-center gap-2 px-3 py-2 rounded-full text-lg font-semibold transition-colors duration-200 shadow-sm ${
+                            isPostLikedByUser(post.id) ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
                           }`}
                         >
                           <Heart
-                            size={18}
+                            size={20}
                             fill={isPostLikedByUser(post.id) ? 'currentColor' : 'none'}
                           />
                           <span>{getLikeCount(post.id)}</span>
                         </button>
                         <button
                           onClick={() => toggleComments(post.id)}
-                          className={`flex items-center gap-1 ${
+                          className={`flex items-center gap-2 px-3 py-2 rounded-full text-lg font-semibold transition-colors duration-200 shadow-sm ${
                             visibleComments.has(post.id) 
-                              ? 'text-green-600' 
-                              : 'text-gray-500 hover:text-green-600'
+                              ? 'text-green-600 bg-green-50 hover:bg-green-100' 
+                              : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
                           }`}
                         >
-                          <MessageCircle size={18} />
+                          <MessageCircle size={20} />
                           <span>{commentCounts[post.id] || 0}</span>
                         </button>
                       </div>
