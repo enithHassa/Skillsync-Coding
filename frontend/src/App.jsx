@@ -26,36 +26,36 @@ import OAuth2Redirect from './components/users/OAuth2Redirect';
 function App() {
   return (
     <NotificationProvider>
-      <Router>
-        <ToastContainer position="top-right" autoClose={3000} />
-        <Routes>
-          {/* Authentication Routes */}
-          <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/logout" element={<Logout />} />
-          <Route path="/oauth2/redirect" element={<OAuth2Redirect />} />
+    <Router>
+      <ToastContainer position="top-right" autoClose={3000} />
+      <Routes>
+        {/* Authentication Routes */}
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/oauth2/redirect" element={<OAuth2Redirect />} />
 
-          {/* Protected Routes */}
-          <Route path="/home" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/update" element={<EditProfile />} />
-          <Route path="/s" element={<SkillsharePost />} />
-          <Route path="/plans" element={<CourseManager />} />
-          <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/comments/:id" element={<Comments />} />
-          <Route path="/posts" element={<SkillsharePost />} />
-          <Route path="/my-posts" element={<MyPosts />} />
+        {/* Protected Routes */}
+        <Route path="/home" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/update" element={<EditProfile />} />
+        <Route path="/s" element={<SkillsharePost />} />
+        <Route path="/plans" element={<CourseManager />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/comments/:id" element={<Comments />} />
+        <Route path="/posts" element={<SkillsharePost />} />
+        <Route path="/my-posts" element={<MyPosts />} />
 
-          <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/progress" element={<ProgressPage />} />
 
-          {/* <Route path="/plans" element={<CoursePage />} /> */}
-          <Route path="/courses" element={<CoursePage />} />
-          <Route path="/search" element={<SearchResults />} />
+        {/* <Route path="/plans" element={<CoursePage />} /> */}
+        <Route path="/courses" element={<CoursePage />} />
+        <Route path="/search" element={<SearchResults />} />
 
-          {/* Redirect any unknown routes to home */}
-          <Route path="*" element={<Navigate to="/home" replace />} />
-        </Routes>
-      </Router>
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
+      </Routes>
+    </Router>
     </NotificationProvider>
   );
 }

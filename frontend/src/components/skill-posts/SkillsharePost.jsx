@@ -328,17 +328,7 @@ export default function SkillsharePost() {
       <div className="max-w-5xl mx-auto mt-10 px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Posts</h2>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by name or description..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-64"
-              />
-              <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-            </div>
+
             <button
               onClick={() => navigate('/my-posts')}
               className="p-2 text-gray-600 hover:text-green-600 transition-colors flex items-center gap-2 rounded-lg hover:bg-green-50"
@@ -348,16 +338,6 @@ export default function SkillsharePost() {
               <span className="text-sm font-medium">My Posts</span>
             </button>
           </div>
-        </div>
-
-        <div className="fixed right-6 bottom-6 z-50">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 transition-transform transform hover:scale-105"
-          >
-            <PlusCircle size={32} />
-          </button>
-        </div>
 
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

@@ -17,6 +17,7 @@ import logo from '../../assets/skillsync-logo.png';
 import axios from 'axios';
 import NotificationSidebar from './NotificationSidebar';
 import { useNotifications } from './NotificationContext';
+import QuickNotes from './QuickNotes';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -321,6 +322,8 @@ export default function Navbar() {
 
       {/* Notification Sidebar */}
       <NotificationSidebar />
+      {/* Quick Notes Floating Button */}
+      <QuickNotes />
     </div>
   );
 }
