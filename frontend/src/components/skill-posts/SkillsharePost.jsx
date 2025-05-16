@@ -321,23 +321,23 @@ export default function SkillsharePost() {
       <div className="max-w-5xl mx-auto mt-10 px-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Posts</h2>
-          <button
-            onClick={() => navigate('/my-posts')}
-            className="p-2 text-gray-600 hover:text-green-600 transition-colors flex items-center gap-2 rounded-lg hover:bg-green-50"
-            title="My Posts"
-          >
-            <User size={24} />
-            <span className="text-sm font-medium">My Posts</span>
-          </button>
-        </div>
-
-        <div className="fixed right-6 bottom-6 z-50">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 transition-transform transform hover:scale-105"
-          >
-            <PlusCircle size={32} />
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold shadow transition"
+            >
+              <PlusCircle size={20} />
+              <span>Create Post</span>
+            </button>
+            <button
+              onClick={() => navigate('/my-posts')}
+              className="p-2 text-gray-600 hover:text-green-600 transition-colors flex items-center gap-2 rounded-lg hover:bg-green-50"
+              title="My Posts"
+            >
+              <User size={24} />
+              <span className="text-sm font-medium">My Posts</span>
+            </button>
+          </div>
         </div>
 
         {isModalOpen && (

@@ -67,15 +67,17 @@ const ProgressPage = () => {
     <>
       <Navbar />
       <div className="max-w-2xl mx-auto mt-8 px-4 relative">
-        {/* Floating Action Button */}
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 z-50 flex items-center gap-2"
-          aria-label="Add new progress update"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="font-medium">Add Progress</span>
-        </button>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Learning Progress</h2>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg flex items-center gap-2 font-semibold shadow transition"
+            aria-label="Add new progress update"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-medium">Add Progress</span>
+          </button>
+        </div>
 
         {/* Creation Form - Only shown when showForm is true */}
         {showForm && (
