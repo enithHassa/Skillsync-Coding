@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import backgroundImage from '../../assets/background-1.jpg';
 import { Code2 } from 'lucide-react';
+import googleLogo from '../../assets/google-logo.png';
+import githubLogo from '../../assets/github-logo.png';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -119,6 +121,24 @@ export default function Signup() {
           >
             Sign Up
           </button>
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-100 transition-colors duration-200 mb-2"
+            >
+              <img src={googleLogo} alt="Google" className="w-6 h-6" />
+              <span className="font-semibold">Sign in with Google</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/github'}
+              className="w-full flex items-center justify-center gap-3 bg-gray-900 text-white py-3 rounded-lg shadow hover:bg-gray-800 transition-colors duration-200"
+            >
+              <img src={githubLogo} alt="GitHub" className="w-6 h-6 bg-white rounded-full" />
+              <span className="font-semibold">Sign in with GitHub</span>
+            </button>
+          </div>
           <p className="text-sm text-center mt-4">
             Already have an account?{' '}
             <Link to="/" className="text-blue-600 hover:underline">

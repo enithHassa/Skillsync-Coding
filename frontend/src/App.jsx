@@ -20,6 +20,7 @@ import ProgressPage from './components/learning-progress/pages/ProgressPage';
 import CoursePage from './components/courses/CoursePage';
 import SearchResults from './components/main-main/SearchResults';
 
+import OAuth2Redirect from './components/users/OAuth2Redirect';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/oauth2/redirect" element={<OAuth2Redirect />} />
 
         {/* Protected Routes */}
         <Route path="/home" element={<Home />} />
