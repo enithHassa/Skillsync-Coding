@@ -25,5 +25,7 @@ public class ProgressUpdate {
     private LocalDateTime updatedAt;         // Set in controller or Mongo event
 
     private String userId;                   // To associate with a specific user
+
+    private boolean highlighted;  // Add this new field
 }
 

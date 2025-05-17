@@ -64,4 +64,13 @@ public class ProgressUpdateService {
             return true;
         }).orElse(false);
     }
+
+    public Optional<ProgressUpdate> toggleHighlight(String id, String userId) {
+        return repository.findById(id).map(existing -> {
+            if (!existing.getUserId().equals(userId)) return null;
+            existing.setHighlighted(!existing.isHighlighted());
+            existing.setUpdatedAt(LocalDateTime.now());
+            return repository.save(existing);
+        });
+    }
 }
