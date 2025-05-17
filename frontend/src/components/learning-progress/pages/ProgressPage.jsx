@@ -52,9 +52,8 @@ const ProgressPage = () => {
   const handleUpdate = async (id, data) => {
     try {
       await updateProgressUpdate(id, data);
-      const updatedData = await getProgressUpdates();
-      setUpdates(updatedData);
       toast.success("Update saved ✅");
+      load();
     } catch {
       toast.error("Failed to update ❌");
     }
